@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>D&D Infinite Canvas VTT</title>
+<style>
+html,body{margin:0;padding:0;overflow:hidden;background:#1e1e1e;color:#eee;font-family:sans-serif;touch-action:none;}
+canvas{display:block}
+#ui{position:fixed;top:5px;left:5px;background:rgba(0,0,0,0.75);padding:8px;border-radius:6px;z-index:10;font-size:14px;max-width:160px;}
+#ui button,#ui select,#ui input{width:100%;margin-top:4px;font-size:14px;}
+#popup{position:fixed;display:none;background:#111;border:1px solid #555;padding:6px;border-radius:6px;z-index:20;font-size:14px;}
+#initiativeTracker{position:fixed;top:5px;right:5px;background:rgba(0,0,0,0.75);padding:8px;border-radius:6px;z-index:10;width:160px;max-height:50vh;overflow-y:auto;}
+#initiativeTracker .tokenItem{padding:4px;margin-bottom:2px;background:#333;border-radius:4px;cursor:grab;}
+#initiativeTracker .tokenItem.active{background:#ff4444;}
+</style>
+</head>
+<body>
+<div id="ui">
+<select id="mode">
+<option value="pan">Pan</option>
+<option value="paint">Paint Biome</option>
+<option value="token">Place Token</option>
+<option value="fogReveal">Fog Reveal</option>
+<option value="fogHide">Fog Hide</option>
+<option value="building">Place Building</option>
+<option value="resource">Place Resource</option>
+</select>
+<select id="biome">
+<option value="grass">Plains</option>
+<option value="forest">Wooded</option>
+<option value="desert">Desert</option>
+<option value="snow">Snow</option>
+<option value="water">Water</option>
+</select>
+<select id="buildingType">
+<option value="house">House</option>
+<option value="shop">Shop</option>
+<option value="fortress">Fortress</option>
+</select>
+<select id="resourceType">
+<option value="dungeon">Dungeon</option>
+<option value="chest">Chest</option>
+<option value="stoneMine">Stone Mine</option>
+<option value="goldMine">Gold Mine</option>
+</select>
+<select id="fogView">
+<option value="dm">DM View</option>
+<option value="player">Player View</option>
+</select>
+<hr>
+<button id="save">Save JSON</button>
+<input type="file" id="load" />
+<hr>
+<button id="nextTurn">Next Turn</button>
+<p>Current Turn: <span id="currentTurn">-</span></p>
+</div>
+
+<div id="initiativeTracker"></div>
+<div id="popup"></div>
+<canvas id="c"></canvas>
+
+<script>
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const popup=document.getElementById('popup');
+const initiativeTracker=document.getElementById('initiativeTracker');
+const grid=50;
+let w=window.innerWidth,h=window.innerHeight;canvas.width=w;canvas.height=h;
+window.onresize=()=>{w=canvas.width=innerWidth;h=canvas.height=innerHeight;draw();};
+
+let offX=0,offY=0,drag=false,dragToken=null,dragStart=null,draggingToken=null;
+const tiles={},fog={},tokens=[],buildings=[],resources=[],turnOrder=[];
+let turnIndex=0;
+
+const CHUNK_SIZE=8;
+const seed=12345;
+
+const biomeColor={grass:'#4b6f44',forest:'#2f4f2f',desert:'#c2b280',snow:'#e6f2ff',water:'#2a6bd6'};
+const buildingColor={house:'#a0522d',shop:'#ffcc00',fortress:'#555555'};
+const resourceColor={dungeon:'#800080',chest:'#ffd700',stoneMine:'#808080',goldMine:'#ffd700'};
+
+const biomeBuildings={grass:['house','shop'], forest:['house','fortress'], desert:['house','fortress'], snow:['fortress'], water:[]};
+const resourceAllowedBiomes={dungeon:['forest','snow'], chest:['grass','forest','snow'], stoneMine:['grass','desert','snow'], goldMine:['desert','snow']};
+
+const modeSelect=document.getElementById('mode');
+const biome=document.getElementById('biome');
+const buildingType=document.getElementById('buildingType');
+const resourceType=document.getElementById('resourceType');
+const fogView=document.getElementById('fogView');
+const currentTurn=document.getElementById('currentTurn');
+
+function key(x,y){return `${x},${y}`;}
+function screenToWorld(x,y){return [Math.floor((x-offX)/grid),Math.floor((y-offY)/grid)];}
+function seedRandom(x,y,s=seed){let n=x*374761393+y*668265263^s;n=(n^(n>>13))*1274126177;return ((n^(n>>16))>>>0)/4294967295;}
+function getChunkCoords(x,y){return [Math.floor(x/CHUNK_SIZE),Math.floor(y/CHUNK_SIZE)];}
+
+function generateTile(x,y){if(tiles[key(x,y)]) return tiles[key(x,y)]; const r=seedRandom(x,y); let tile;if(r<0.05) tile='water'; else if(r<0.15) tile='desert'; else if(r<0.5) tile='grass'; else if(r<0.8) tile='forest'; else tile='snow'; return tiles[key(x,y)]=tile;}
+
+function generateChunkContent(cx,cy){
+    const startX=cx*CHUNK_SIZE, startY=cy*CHUNK_SIZE;
+    for(let i=0;i<CHUNK_SIZE;i++){
+        for(let j=0;j<CHUNK_SIZE;j++){
+            const wx=startX+i, wy=startY+j;
+            const tileType=generateTile(wx,wy);
+
+            // Force one snow & forest
+            if(i===0&&j===0) tiles[key(wx,wy)]='snow';
+            if(i===CHUNK_SIZE-1&&j===CHUNK_SIZE-1) tiles[key(wx,wy)]='forest';
+
+            // Buildings
+            if(!buildings.find(b=>b.x===wx&&b.y===wy)){
+                const bList=biomeBuildings[tileType];
+                if(bList.length>0 && seedRandom(wx,wy+seed)<0.05){
+                    buildings.push({x:wx,y:wy,type:bList[Math.floor(seedRandom(wx+1,wy+seed)*bList.length)],name:bList[0],color:buildingColor[bList[0]]});
+                }
+            }
+
+            // Resources
+            const bHere=buildings.find(b=>b.x===wx&&b.y===wy);
+            if(!resources.find(r=>r.x===wx&&r.y===wy) && !bHere){
+                for(let resType in resourceAllowedBiomes){
+                    if(resourceAllowedBiomes[resType].includes(tileType) && seedRandom(wx,wy+seed)<0.05){
+                        resources.push({x:wx,y:wy,type:resType,name:resType,color:resourceColor[resType]});
+                    }
+                }
+            }
+        }
+    }
+}
+
+function getPointerPos(e){ const touch=e.touches?e.touches[0]:e; return [touch.clientX,touch.clientY]; }
+
+canvas.onmousedown=canvas.ontouchstart=e=>{
+    const [px,py]=getPointerPos(e);
+    const [wx,wy]=screenToWorld(px,py);
+    const m=modeSelect.value;
+
+    if(tiles[key(wx,wy)]==='water' && ['paint','token','building','resource'].includes(m)){alert('Cannot place here: water!'); return;}
+    if(m==='pan'){drag=true; dragStart=[px,py]; return;}
+    if(m==='paint') tiles[key(wx,wy)]=biome.value;
+    if(m==='fogReveal') fog[key(wx,wy)]=false;
+    if(m==='fogHide') fog[key(wx,wy)]=true;
+
+    if(m==='token'){
+        if(!tokens.find(t=>t.x===wx&&t.y===wy)){
+            const newT={x:wx,y:wy,name:'PC',hp:10,vision:3};
+            tokens.push(newT); turnOrder.push(newT); updateInitiativeTracker();
+        }
+    }
+
+    if(m==='building'){
+        if(!buildings.find(b=>b.x===wx&&b.y===wy)){
+            const type=buildingType.value;
+            buildings.push({x:wx,y:wy,type:type,name:type,color:buildingColor[type]});
+        }
+    }
+
+    if(m==='resource'){
+        if(!resources.find(r=>r.x===wx&&r.y===wy)){
+            const type=resourceType.value;
+            resources.push({x:wx,y:wy,type:type,name:type,color:resourceColor[type]});
+        }
+    }
+
+    // Popup for tokens, buildings, resources
+    let element=tokens.find(t=>t.x===wx&&t.y===wy) || buildings.find(b=>b.x===wx&&b.y===wy) || resources.find(r=>r.x===wx&&r.y===wy);
+    if(element){
+        popup.style.left=px+'px';
+        popup.style.top=py+'px';
+        popup.style.display='block';
+
+        let html=`<b>${element.name}</b><br>`;
+        html+=`Name: <input value="${element.name}" oninput="popup._t.name=this.value; draw(); updateInitiativeTracker()"><br>`;
+
+        const options=buildings.includes(element)? ['house','shop','fortress'] : ['dungeon','chest','stoneMine','goldMine'];
+        html+=`Type: <select onchange="popup._t.type=this.value; updateColor(popup._t); draw(); updatePreview()">`;
+        options.forEach(o=>{ html+=`<option value="${o}" ${element.type===o?'selected':''}>${o}</option>`; });
+        html+=`</select><br>`;
+        html+=`Color: <input type="color" value="${element.color}" onchange="setColor(popup._t,this.value); updatePreview(); draw()"><br>`;
+        html+=`<canvas id="popupPreview" width="50" height="50" style="border:1px solid #444;margin-top:4px;"></canvas><br>`;
+        html+=`<button onclick="popup.style.display='none'">OK</button> `;
+        html+=`<button onclick="removeElement(popup._t)">Remove</button>`;
+
+        popup.innerHTML=html;
+        popup._t=element;
+
+        function updatePreview(){
+            const c=document.getElementById('popupPreview'); const ctx=c.getContext('2d');
+            ctx.clearRect(0,0,c.width,c.height);
+            const r=popup._t;
+            ctx.fillStyle=r.color;
+            const cx=c.width/2,cy=c.height/2,size=20;
+            ctx.beginPath();
+            if(buildings.includes(r)){ ctx.fillRect(cx-size,cy-size,size*2,size*2); } 
+            else { ctx.arc(cx,cy,size,0,Math.PI*2); ctx.fill(); }
+        }
+        updatePreview();
+    }
+
+    draw();
+    e.preventDefault();
+};
+
+// Helpers
+function setColor(el,color){el.color=color;}
+function updateColor(el){if(buildings.includes(el)) el.color=buildingColor[el.type]; else el.color=resourceColor[el.type];}
+function removeElement(el){
+    [tokens,buildings,resources].forEach(arr=>{
+        const idx=arr.indexOf(el); if(idx!==-1) arr.splice(idx,1);
+    });
+    const tIdx=turnOrder.indexOf(el); if(tIdx!==-1) turnOrder.splice(tIdx,1);
+    popup.style.display='none';
+    draw(); updateInitiativeTracker();
+}
+
+// Popup drag
+let popupDrag=false,popupOffset=[0,0];
+popup.onmousedown=popup.ontouchstart=e=>{
+    if(e.target.tagName==='INPUT'||e.target.tagName==='BUTTON'||e.target.tagName==='SELECT') return;
+    const touch=e.touches?e.touches[0]:e;
+    popupDrag=true; popupOffset=[touch.clientX-popup.offsetLeft,touch.clientY-popup.offsetTop];
+    e.preventDefault();
+};
+document.onmousemove=document.ontouchmove=e=>{
+    if(!popupDrag) return;
+    const touch=e.touches?e.touches[0]:e;
+    popup.style.left=(touch.clientX-popupOffset[0])+'px';
+    popup.style.top=(touch.clientY-popupOffset[1])+'px';
+};
+document.onmouseup=document.ontouchend=()=>{popupDrag=false;};
+
+// Canvas drag
+canvas.onmousemove=canvas.ontouchmove=e=>{
+    const [px,py]=getPointerPos(e);
+    if(drag&&dragStart){offX+=px-dragStart[0]; offY+=py-dragStart[1]; dragStart=[px,py]; draw();}
+    if(dragToken){const [wx,wy]=screenToWorld(px,py); dragToken.x=wx; dragToken.y=wy; draw(); updateInitiativeTracker();}
+    e.preventDefault();
+};
+canvas.onmouseup=canvas.ontouchend=()=>{drag=false; dragToken=null;};
+
+// Initiative Tracker
+function updateInitiativeTracker(){
+    initiativeTracker.innerHTML='';
+    turnOrder.forEach((t,i)=>{
+        const div=document.createElement('div');
+        div.className='tokenItem'+(i===turnIndex?' active':'');
+        div.textContent=t.name;
+        div.draggable=true;
+        div.ondragstart=e=>{draggingToken=t;};
+        div.ondragover=e=>{e.preventDefault();};
+        div.ondrop=e=>{
+            e.preventDefault();
+            const idx=turnOrder.indexOf(t);
+            turnOrder.splice(turnOrder.indexOf(draggingToken),1);
+            turnOrder.splice(idx,0,draggingToken);
+            updateInitiativeTracker();
+        };
+        initiativeTracker.appendChild(div);
+    });
+}
+
+// Turn
+document.getElementById('nextTurn').onclick=()=>{
+    if(turnOrder.length===0) return;
+    turnIndex=(turnIndex+1)%turnOrder.length;
+    currentTurn.textContent=turnOrder[turnIndex].name;
+    updateInitiativeTracker();
+};
+
+// Draw
+function draw(){
+    ctx.clearRect(0,0,w,h);
+    const cols=Math.ceil(w/grid)+2, rows=Math.ceil(h/grid)+2;
+    const startX=Math.floor(-offX/grid)-1, startY=Math.floor(-offY/grid)-1;
+    for(let i=startX;i<startX+cols;i++){
+        for(let j=startY;j<startY+rows;j++){
+            const wx=i,wy=j;
+            const tileType=generateTile(wx,wy);
+            const [cx,cy]=getChunkCoords(wx,wy);
+            generateChunkContent(cx,cy);
+            ctx.fillStyle=biomeColor[tileType];
+            ctx.fillRect(wx*grid+offX,wy*grid+offY,grid,grid);
+        }
+    }
+    // Buildings
+    for(let b of buildings){
+        ctx.fillStyle=b.color;
+        ctx.fillRect(b.x*grid+offX+5,b.y*grid+offY+5,grid-10,grid-10);
+    }
+    // Resources
+    for(let r of resources){
+        ctx.fillStyle=r.color;
+        ctx.beginPath();
+        ctx.arc(r.x*grid+offX+grid/2,r.y*grid+offY+grid/2,grid/3,0,Math.PI*2); ctx.fill();
+    }
+    // Tokens
+    ctx.fillStyle='#ff4444'; ctx.font='16px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    for(let t of tokens){
+        ctx.beginPath(); ctx.arc(t.x*grid+offX+grid/2,t.y*grid+offY+grid/2,grid/3,0,Math.PI*2); ctx.fill();
+        ctx.fillText(t.name,t.x*grid+offX+grid/2,t.y*grid+offY+grid/2-18);
+    }
+    drawGrid();
+}
+
+function drawGrid(){ctx.strokeStyle='#666'; for(let x=offX%grid;x<w;x+=grid){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();} for(let y=offY%grid;y<h;y+=grid){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}}
+draw(); updateInitiativeTracker();
+
+// Save / Load JSON
+document.getElementById('save').onclick=()=>{
+    const data=JSON.stringify({tiles,fog,tokens,buildings,resources,turnOrder,turnIndex});
+    const blob=new Blob([data],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a'); a.href=url; a.download='map.json'; a.click();
+};
+document.getElementById('load').onchange=e=>{
+    const file=e.target.files[0];
+    const reader=new FileReader();
+    reader.onload=ev=>{
+        const obj=JSON.parse(ev.target.result);
+        Object.assign(tiles,obj.tiles); Object.assign(fog,obj.fog);
+        tokens.length=0; tokens.push(...obj.tokens);
+        buildings.length=0; buildings.push(...obj.buildings);
+        resources.length=0; resources.push(...obj.resources);
+        turnOrder.length=0; turnOrder.push(...obj.turnOrder);
+        turnIndex=obj.turnIndex;
+        draw(); updateInitiativeTracker();
+    };
+    reader.readAsText(file);
+};
+</script>
+</body>
+</html>

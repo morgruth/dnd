@@ -1,0 +1,263 @@
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"> <title>D&D Infinite Canvas VTT</title> <style> html,body{margin:0;padding:0;overflow:hidden;background:#1e1e1e;color:#eee;font-family:sans-serif;touch-action:none;} canvas{display:block} #ui{position:fixed;top:5px;left:5px;background:rgba(0,0,0,0.75);padding:8px;border-radius:6px;z-index:10;font-size:14px;max-width:150px;} #ui button,#ui select,#ui input{width:100%;margin-top:4px;font-size:14px;} #popup{position:fixed;display:none;background:#111;border:1px solid #555;padding:6px;border-radius:6px;z-index:20;font-size:14px;} </style> </head> <body> <div id="ui"> <select id="mode"> <option value="pan">Pan</option> <option value="paint">Paint Biome</option> <option value="token">Place Token</option> <option value="fogReveal">Fog Reveal</option> <option value="fogHide">Fog Hide</option> <option value="building">Place Building</option> <option value="resource">Place Resource</option> </select> <select id="biome"> <option value="grass">Grass</option> <option value="forest">Forest</option> <option value="desert">Desert</option> <option value="snow">Snow</option> <option value="water">Water</option> </select> <select id="buildingType"> <option value="house">House</option> <option value="shop">Shop</option> <option value="fortress">Fortress</option> </select> <select id="resourceType"> <option value="dungeon">Dungeon</option> <option value="chest">Chest</option> <option value="stoneMine">Stone Mine</option> <option value="goldMine">Gold Mine</option> </select> <select id="fogView"> <option value="dm">DM View</option> <option value="player">Player View</option> </select> <hr> <button id="save">Save JSON</button> <input type="file" id="load" /> <hr> <button id="nextTurn">Next Turn</button> <p>Current Turn: <span id="currentTurn">-</span></p> </div> <div id="popup"></div> <canvas id="c"></canvas> 
+<script>
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+const popup=document.getElementById('popup');
+
+const grid=50;
+let w=canvas.width=innerWidth;
+let h=canvas.height=innerHeight;
+window.onresize=()=>{w=canvas.width=innerWidth;h=canvas.height=innerHeight;draw();};
+
+let offX=0,offY=0;
+let dragging=false;
+let dragStart=null;
+let dragToken=null;
+
+const tiles={}, fog={}, tokens=[], buildings=[], resources=[], turnOrder=[];
+let turnIndex=0;
+
+const CHUNK_SIZE=8;
+const seed=12345;
+
+const biomeColor={
+ grass:'#4b6f44', forest:'#2f4f2f', desert:'#c2b280',
+ snow:'#e6f2ff', water:'#2a6bd6'
+};
+const buildingColor={house:'#a0522d',shop:'#ffcc00',fortress:'#555'};
+const resourceColor={dungeon:'#800080',chest:'#ffd700',stoneMine:'#888',goldMine:'#ffd700'};
+
+const biomeResources={
+ grass:['chest','stoneMine'],
+ forest:['chest','dungeon'],
+ desert:['stoneMine','goldMine'],
+ snow:['chest'],
+ water:[]
+};
+const biomeBuildings={
+ grass:['house','shop'],
+ forest:['house'],
+ desert:['house','fortress'],
+ snow:['fortress'],
+ water:[]
+};
+
+const modeSelect=mode;
+const fogView=document.getElementById('fogView');
+const currentTurn=document.getElementById('currentTurn');
+
+function key(x,y){ return `${x},${y}`; }
+function screenToWorld(x,y){
+ return [
+  Math.floor((x-offX)/grid),
+  Math.floor((y-offY)/grid)
+ ];
+}
+
+function seedRandom(x,y,s=seed){
+ let n=x*374761393+y*668265263^s;
+ n=(n^(n>>13))*1274126177;
+ return ((n^(n>>16))>>>0)/4294967295;
+}
+
+function getChunkCoords(x,y){
+ return [Math.floor(x/CHUNK_SIZE),Math.floor(y/CHUNK_SIZE)];
+}
+
+function generateTile(x,y){
+ if(tiles[key(x,y)]) return tiles[key(x,y)];
+ const r=seedRandom(x,y);
+ let t='grass';
+ if(r<0.05) t='water';
+ else if(r<0.15) t='desert';
+ else if(r<0.5) t='grass';
+ else if(r<0.8) t='forest';
+ else t='snow';
+ tiles[key(x,y)]=t;
+ return t;
+}
+
+function generateChunkContent(cx,cy){
+ const sx=cx*CHUNK_SIZE, sy=cy*CHUNK_SIZE;
+ for(let i=0;i<CHUNK_SIZE;i++){
+  for(let j=0;j<CHUNK_SIZE;j++){
+   const x=sx+i, y=sy+j;
+   const tile=generateTile(x,y);
+
+   if(!resources.find(r=>r.x===x&&r.y===y)){
+    const list=biomeResources[tile];
+    if(list.length && seedRandom(x,y+99)<0.05){
+     resources.push({x,y,type:list[Math.floor(seedRandom(x,y+1)*list.length)]});
+    }
+   }
+
+   if(!buildings.find(b=>b.x===x&&b.y===y)){
+    const list=biomeBuildings[tile];
+    if(list.length && seedRandom(x+7,y)<0.03){
+     buildings.push({x,y,type:list[Math.floor(seedRandom(x+2,y)*list.length)]});
+    }
+   }
+  }
+ }
+}
+
+/* -------- REAL FOG OF WAR -------- */
+function revealFogFromToken(t){
+ const r=t.vision||3;
+ for(let dx=-r;dx<=r;dx++){
+  for(let dy=-r;dy<=r;dy++){
+   if(dx*dx+dy*dy>r*r) continue;
+   fog[key(t.x+dx,t.y+dy)]=false;
+  }
+ }
+}
+
+function drawFog(){
+ if(fogView.value==='dm') return;
+ ctx.fillStyle='rgba(0,0,0,0.85)';
+ const cols=Math.ceil(w/grid)+2;
+ const rows=Math.ceil(h/grid)+2;
+ const sx=Math.floor(-offX/grid)-1;
+ const sy=Math.floor(-offY/grid)-1;
+ for(let x=sx;x<sx+cols;x++){
+  for(let y=sy;y<sy+rows;y++){
+   if(fog[key(x,y)]!==false){
+    ctx.fillRect(x*grid+offX,y*grid+offY,grid,grid);
+   }
+  }
+ }
+}
+
+/* -------- INPUT -------- */
+function pointer(e){
+ const t=e.touches?e.touches[0]:e;
+ return [t.clientX,t.clientY];
+}
+
+canvas.onpointerdown=e=>{
+ const [px,py]=pointer(e);
+ const [wx,wy]=screenToWorld(px,py);
+ popup.style.display='none';
+
+ if(modeSelect.value==='pan'){
+  dragging=true;
+  dragStart=[px,py];
+  return;
+ }
+
+ if(modeSelect.value==='token'){
+  const t={x:wx,y:wy,name:'PC',hp:10,vision:3};
+  tokens.push(t);
+  turnOrder.push(t);
+  revealFogFromToken(t);
+ }
+
+ for(const t of tokens){
+  if(t.x===wx&&t.y===wy){
+   dragToken=t;
+   showPopup(px,py,t);
+  }
+ }
+
+ draw();
+};
+
+canvas.onpointermove=e=>{
+ const [px,py]=pointer(e);
+ if(dragging){
+  offX+=px-dragStart[0];
+  offY+=py-dragStart[1];
+  dragStart=[px,py];
+  draw();
+ }
+ if(dragToken){
+  const [wx,wy]=screenToWorld(px,py);
+  dragToken.x=wx;
+  dragToken.y=wy;
+  revealFogFromToken(dragToken);
+  draw();
+ }
+};
+
+canvas.onpointerup=()=>{
+ dragging=false;
+ dragToken=null;
+};
+
+/* -------- DRAW -------- */
+function draw(){
+ ctx.clearRect(0,0,w,h);
+ const cols=Math.ceil(w/grid)+2;
+ const rows=Math.ceil(h/grid)+2;
+ const sx=Math.floor(-offX/grid)-1;
+ const sy=Math.floor(-offY/grid)-1;
+ const seen=new Set();
+
+ for(let x=sx;x<sx+cols;x++){
+  for(let y=sy;y<sy+rows;y++){
+   const tile=generateTile(x,y);
+   const [cx,cy]=getChunkCoords(x,y);
+   const ck=`${cx},${cy}`;
+   if(!seen.has(ck)){
+    seen.add(ck);
+    generateChunkContent(cx,cy);
+   }
+   ctx.fillStyle=biomeColor[tile];
+   ctx.fillRect(x*grid+offX,y*grid+offY,grid,grid);
+  }
+ }
+
+ for(const b of buildings){
+  ctx.fillStyle=buildingColor[b.type];
+  ctx.fillRect(b.x*grid+offX+6,b.y*grid+offY+6,grid-12,grid-12);
+ }
+
+ for(const r of resources){
+  ctx.fillStyle=resourceColor[r.type];
+  ctx.beginPath();
+  ctx.arc(r.x*grid+offX+grid/2,r.y*grid+offY+grid/2,grid/3,0,Math.PI*2);
+  ctx.fill();
+ }
+
+ for(const t of tokens){
+  ctx.fillStyle='#f44';
+  ctx.beginPath();
+  ctx.arc(t.x*grid+offX+grid/2,t.y*grid+offY+grid/2,grid/3,0,Math.PI*2);
+  ctx.fill();
+ }
+
+ ctx.strokeStyle='#666';
+ for(let x=offX%grid;x<w;x+=grid){
+  ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();
+ }
+ for(let y=offY%grid;y<h;y+=grid){
+  ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();
+ }
+
+ drawFog();
+}
+
+function showPopup(x,y,t){
+ popup.style.left=x+'px';
+ popup.style.top=y+'px';
+ popup.style.display='block';
+ popup.innerHTML=`
+ <b>Token</b><br>
+ Name <input id="pn" value="${t.name}"><br>
+ HP <input id="ph" type="number" value="${t.hp}"><br>
+ Vision <input id="pv" type="number" value="${t.vision}"><br>
+ <button id="ok">OK</button>
+ `;
+ ok.onclick=()=>{
+  t.name=pn.value;
+  t.hp=+ph.value;
+  t.vision=+pv.value;
+  popup.style.display='none';
+  revealFogFromToken(t);
+  draw();
+ };
+}
+
+draw();
+
+ </script> </body> </html>
