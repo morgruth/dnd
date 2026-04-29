@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Vertical Blockchain Sandbox</title>
+</head>
+<link rel="stylesheet" href="blockchain_style.css">
+<body>
+<script src="blockchain_script.js"></script>
+
+<div id="clock">00:00:00</div>
+
+<h2>Vertical Interactive Blockchain</h2>
+<input type="text" id="inputText" placeholder="Enter data for block">
+<br>
+<button onclick="addBlock()">Add Block</button>
+
+<br>
+<label>Difficulty: <span id="difficultyLabel">3</span></label><br>
+<input type="range" min="1" max="5" value="3"
+       onchange="updateDifficulty(this.value)">
+<br><br>
+<div id="chainStatus"></div>
+
+<div id="blockchainContainer">
+    <canvas id="connectionCanvas"></canvas>
+</div>
+
+</body>
+</html>
