@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sovereign OS v6.7: Industrial Expansion</title>
+    <style>
+        body { background-color: #050005; color: #ff00ff; font-family: 'Courier New', Courier, monospace; padding: 20px; }
+        .container { max-width: 1200px; margin: auto; border: 2px solid #ff00ff; padding: 25px; box-shadow: 0 0 25px #ff00ff; background: rgba(10, 0, 15, 0.9); }
+        h1, h2, h3 { text-align: center; text-transform: uppercase; border-bottom: 1px solid #ff00ff; padding-bottom: 10px; color: #fff; text-shadow: 0 0 10px #ff00ff; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .sector { border: 1px solid #550055; padding: 15px; background: #0c0015; border-radius: 5px; margin-bottom: 20px; }
+        label { display: block; margin-top: 10px; color: #aaa; font-size: 0.8em; }
+        input, select { background: #1a002a; border: 1px solid #ff00ff; color: #0f0; width: 95%; padding: 8px; margin-bottom: 5px; font-weight: bold; box-sizing: border-box; }
+        button { background: #ff00ff; color: #000; border: none; padding: 12px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 10px; text-transform: uppercase; transition: 0.3s; }
+        button:hover { background: #fff; box-shadow: 0 0 20px #fff; }
+        #log { background: #000; border: 1px solid #444; height: 180px; overflow-y: scroll; padding: 10px; font-size: 0.85em; color: #0f0; margin-top: 15px; border-radius: 5px; }
+        .item-list { list-style: none; padding: 0; max-height: 180px; overflow-y: auto; border-top: 1px solid #555; }
+        .item-row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #222; font-size: 0.8em; align-items: center; }
+        .label-tag { background: #550055; padding: 2px 6px; border-radius: 4px; color: #0f0; font-size: 0.75em; border: 1px solid #ff00ff; }
+        .res-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 5px; }
+        .status-box { text-align: center; font-size: 1.1em; font-weight: bold; padding: 15px; border: 2px dashed #ff00ff; margin: 15px 0; background: #1a001a; }
+        .module-tag { color: #0ff; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 id="mainHeader">Sovereign OS: Briar Industrial Hub</h1>
+    
+    <div class="grid">
+        <div class="sector">
+            <h2>Sovereign Credentials</h2>
+            <label>Domain Name</label>
+            <input type="text" id="cityName" value="Briar" onchange="updateCityName()">
+            
+            <label>Strength (STR) [Logistics Anchor]</label>
+            <input type="number" id="statStr" value="17" onchange="calculateLogistics()">
+            
+            <label>Liquid Gold (GP)</label>
+            <input type="number" id="bankGp" value="11134.60" onchange="calculateLogistics()">
+            
+            <label>Planar Credits (AC)</label>
+            <input type="number" id="bankAc" value="1600">
+            
+            <button onclick="calculateLogistics()">Update Ledger & Recalculate</button>
+            <button onclick="planarExchange()" style="background: #00ffff; color: #000;">Planar Exchange (1000 GP : 100 AC)</button>
+            <button onclick="runProductionCycle()" style="background: #00ff00; color: #000;">Run Production Cycle</button>
+        </div>
+
+        <div class="sector">
+            <h2>Item Vault: Artifact Registry</h2>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" id="newItemName" placeholder="Artifact Name" style="width: 50%;">
+                <input type="text" id="newItemLabel" placeholder="Label (e.g. Attuned)" style="width: 50%;">
+            </div>
+            <label>Weight (lbs)</label>
+            <input type="number" id="newItemWeight" value="1">
+            <button onclick="addItem()">Register & Label Artifact</button>
+            
+            <h3>Registered Inventory</h3>
+            <ul id="itemList" class="item-list">
+                </ul>
+        </div>
+    </div>
+
+    <div class="grid">
+        <div class="sector">
+            <h2>Create Production Module</h2>
+            <input type="text" id="modName" placeholder="Module Name (e.g. Iron Foundry)">
+            <div style="display: flex; gap: 10px;">
+                <div style="width: 50%;">
+                    <label>Input (Consume)</label>
+                    <select id="modInputRes">
+                        <option value="resWood">Shadow-Oak</option>
+                        <option value="resGrain">Aether-Grain</option>
+                        <option value="bankGp">Liquid Gold (GP)</option>
+                        <option value="resIron">Shadow-Iron</option>
+                        <option value="resCrystals">Aether Crystals</option>
+                        <option value="resObsidian">Obsidian</option>
+                        <option value="resEssence">Static Essence</option>
+                    </select>
+                    <input type="number" id="modInputQty" value="2" placeholder="Qty">
+                </div>
+                <div style="width: 50%;">
+                    <label>Output (Create)</label>
+                    <select id="modOutputRes">
+                        <option value="resIron">Shadow-Iron</option>
+                        <option value="resCrystals">Aether Crystals</option>
+                        <option value="bankGp">Liquid Gold (GP)</option>
+                        <option value="resWood">Shadow-Oak</option>
+                        <option value="resGrain">Aether-Grain</option>
+                        <option value="resObsidian">Obsidian</option>
+                        <option value="resEssence">Static Essence</option>
+                    </select>
+                    <input type="number" id="modOutputQty" value="5" placeholder="Qty">
+                </div>
+            </div>
+            <button onclick="addModule()">Install Industrial Module</button>
+            <h3>Active Infrastructure</h3>
+            <ul id="moduleList" class="item-list">
+                </ul>
+        </div>
+
+        <div class="sector">
+            <h2>Resource Manifest & Registry</h2>
+            
+            <div style="border: 1px dashed #ff00ff; padding: 12px; margin-bottom: 15px; background: #150020; border-radius: 4px;">
+                <h3 style="margin-top: 0; font-size: 0.9em; border-bottom: none; text-align: left;">Register New Strategic Resource</h3>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="newResName" placeholder="Resource Name (e.g. Mithril)" style="width: 40%;">
+                    <input type="number" id="newResWeight" placeholder="Wt (lbs)" value="1" style="width: 30%;">
+                    <input type="number" id="newResQty" placeholder="Init Qty" value="0" style="width: 30%;">
+                </div>
+                <button onclick="registerNewResource()" style="padding: 6px; margin-top: 8px; font-size: 0.8em; background: #00ffff;">Add to Manifest</button>
+            </div>
+
+            <h3>Global Resource Manifest</h3>
+            <div class="res-grid" id="manifestGrid">
+                <div><label>Shadow-Iron</label><input type="number" id="resIron" class="res" data-weight="10" value="487.2" onchange="calculateLogistics()"></div>
+                <div><label>Shadow-Oak</label><input type="number" id="resWood" class="res" data-weight="2" value="2914.8" onchange="calculateLogistics()"></div>
+                <div><label>Obsidian</label><input type="number" id="resObsidian" class="res" data-weight="5" value="473.4" onchange="calculateLogistics()"></div>
+                <div><label>Aether-Grain</label><input type="number" id="resGrain" class="res" data-weight="1" value="5000" onchange="calculateLogistics()"></div>
+                <div><label>Produce</label><input type="number" id="resProduce" class="res" data-weight="1" value="5" onchange="calculateLogistics()"></div>
+                <div><label>Livestock</label><input type="number" id="resLivestock" class="res" data-weight="0" value="2" onchange="calculateLogistics()"></div>
+                <div><label>Arsenal</label><input type="number" id="resArsenal" class="res" data-weight="6" value="15" onchange="calculateLogistics()"></div>
+                <div><label>Aether Crystals</label><input type="number" id="resCrystals" class="res" data-weight="1" value="51.8" onchange="calculateLogistics()"></div>
+                <div><label>Static Essence</label><input type="number" id="resEssence" class="res" data-weight="0" value="27.03" onchange="calculateLogistics()"></div>
+                <div><label>Wardens (Units)</label><input type="number" id="resWardens" class="res" data-weight="0" value="20" onchange="calculateLogistics()"></div>
+                <div><label>City Watch (Units)</label><input type="number" id="resWatch" class="res" data-weight="0" value="50" onchange="calculateLogistics()"></div>
+                <div><label>Signet Ring</label><input type="number" id="resSignet" class="res" data-weight="0" value="1" onchange="calculateLogistics()"></div>
+                <div><label>Silver Veins</label><input type="number" id="resSilver" class="res" data-weight="10" value="0" onchange="calculateLogistics()"></div>
+                <div><label>High-Grade Salt</label><input type="number" id="resSalt" class="res" data-weight="2" value="0" onchange="calculateLogistics()"></div>
+                <div><label>Aether-Hawks</label><input type="number" id="resHawks" class="res" data-weight="0" value="50" onchange="calculateLogistics()"></div>
+                <div><label>Glass-Antelope</label><input type="number" id="resAntelope" class="res" data-weight="0" value="100" onchange="calculateLogistics()"></div>
+                <div><label>Sentinel Oaks</label><input type="number" id="resOaks" class="res" data-weight="0" value="1200" onchange="calculateLogistics()"></div>
+                <div><label>Leviathans</label><input type="number" id="resLeviathans" class="res" data-weight="0" value="12" onchange="calculateLogistics()"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-box" id="statusReport">STABILITY INDEX: HIGH (Backed by 1kg AU Wafer)</div>
+    <div id="log">--- SOVEREIGN OS v6.7 (INTEGRATED INDUSTRIAL BUILD) INITIALIZED ---</div>
+</div>
+
+<script>
+    // Initial Item Vault Registry Data
+    let vaultItems = [
+        { name: "Mantle of Echoes", label: "Relic", weight: 2 },
+        { name: "Wand of Secrets", label: "Active", weight: 1 },
+        { name: "Blade of the Warden", label: "Equipped", weight: 3 }
+    ];
+
+    // Initial Industrial Production Modules
+    let modules = [
+        { name: "Iron Harmony Foundry", input: "resWood", inQty: 2, output: "resIron", outQty: 5 }
+    ];
+
+    function logMessage(msg) {
+        const log = document.getElementById('log');
+        log.innerHTML += `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+        log.scrollTop = log.scrollHeight;
+    }
+
+    function updateCityName() {
+        const name = document.getElementById('cityName').value;
+        document.getElementById('mainHeader').innerText = `Sovereign OS: ${name} Industrial Hub`;
+        logMessage(`DOMAIN RE-INDEXED: Current seat of power established as [${name}]`);
+        calculateLogistics();
+    }
+
+    /* --- DYNAMIC RESOURCE REGISTRY ENGINE --- */
+    function registerNewResource() {
+        const name = document.getElementById('newResName').value.trim();
+        const weight = parseFloat(document.getElementById('newResWeight').value);
+        const qty = parseFloat(document.getElementById('newResQty').value) || 0;
+
+        if (!name) {
+            return logMessage("ERROR: Resource name required for Manifest expansion.");
+        }
+        if (isNaN(weight) || weight < 0) {
+            return logMessage("ERROR: Resource weight must be a valid number.");
+        }
+
+        // Generate a safe unique ID
+        const cleanId = "res" + name.replace(/[^a-zA-Z0-9]/g, '');
+        
+        // Double check it doesn't already exist
+        if (document.getElementById(cleanId)) {
+            return logMessage(`ERROR: A resource with identity [${name}] already exists.`);
+        }
+
+        // 1. Inject into the Dynamic Manifest grid
+        const grid = document.getElementById('manifestGrid');
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = `<label>${name}</label><input type="number" id="${cleanId}" class="res" data-weight="${weight}" value="${qty}" onchange="calculateLogistics()">`;
+        grid.appendChild(wrapper);
+
+        // 2. Automatically inject as an eligible selection in the "Create Production Module" dropdowns
+        const inputSelect = document.getElementById('modInputRes');
+        const outputSelect = document.getElementById('modOutputRes');
+
+        const optIn = document.createElement('option');
+        optIn.value = cleanId;
+        optIn.text = name;
+        inputSelect.appendChild(optIn);
+
+        const optOut = document.createElement('option');
+        optOut.value = cleanId;
+        optOut.text = name;
+        outputSelect.appendChild(optOut);
+
+        // 3. Clear the registration fields and log the changes
+        document.getElementById('newResName').value = "";
+        document.getElementById('newResWeight').value = "1";
+        document.getElementById('newResQty').value = "0";
+
+        logMessage(`MANIFEST RE-CONFIGURED: Added [${name}] (${weight} lbs/unit) to Global Resource Manifest.`);
+        calculateLogistics();
+    }
+
+    /* --- VAULT ENGINE --- */
+    function addItem() {
+        const name = document.getElementById('newItemName').value;
+        const label = document.getElementById('newItemLabel').value || "Standard";
+        const weight = parseFloat(document.getElementById('newItemWeight').value) || 0;
+        
+        if (!name) return logMessage("ERROR: Name required for artifact registration.");
+
+        vaultItems.push({ name, label, weight });
+        logMessage(`ARTIFACT REGISTERED: ${name} marked as [${label}]`);
+        document.getElementById('newItemName').value = "";
+        document.getElementById('newItemLabel').value = "";
+        renderItems();
+        calculateLogistics();
+    }
+
+    function renderItems() {
+        const list = document.getElementById('itemList');
+        list.innerHTML = "";
+        vaultItems.forEach((item, index) => {
+            list.innerHTML += `
+                <li class="item-row">
+                    <span><strong>${item.name}</strong> <span class="label-tag">${item.label}</span></span>
+                    <span>${item.weight} lbs <button style="width: auto; padding: 2px 8px; font-size: 0.7em;" onclick="removeItem(${index})">ERASE</button></span>
+                </li>`;
+        });
+    }
+
+    function removeItem(index) {
+        logMessage(`ARTIFACT ERASED: ${vaultItems[index].name} removed from vault.`);
+        vaultItems.splice(index, 1);
+        renderItems();
+        calculateLogistics();
+    }
+
+    /* --- INDUSTRIAL MODULES ENGINE --- */
+    function addModule() {
+        const name = document.getElementById('modName').value;
+        const input = document.getElementById('modInputRes').value;
+        const inQty = parseFloat(document.getElementById('modInputQty').value);
+        const output = document.getElementById('modOutputRes').value;
+        const outQty = parseFloat(document.getElementById('modOutputQty').value);
+
+        if (!name) return logMessage("ERROR: Module name required.");
+        
+        modules.push({ name, input, inQty, output, outQty });
+        renderModules();
+        
+        const inLabel = document.querySelector(`#modInputRes option[value="${input}"]`).text;
+        const outLabel = document.querySelector(`#modOutputRes option[value="${output}"]`).text;
+        logMessage(`INFRASTRUCTURE ADDED: ${name} (Transforms ${inQty} ${inLabel} to ${outQty} ${outLabel})`);
+    }
+
+    function renderModules() {
+        const list = document.getElementById('moduleList');
+        list.innerHTML = "";
+        modules.forEach((mod, index) => {
+            const inLabel = document.querySelector(`#modInputRes option[value="${mod.input}"]`).text;
+            const outLabel = document.querySelector(`#modOutputRes option[value="${mod.output}"]`).text;
+            list.innerHTML += `<li class="item-row">
+                <span><span class="module-tag">${mod.name}</span>: ${mod.inQty} ${inLabel} &rarr; ${mod.outQty} ${outLabel}</span>
+                <button style="width: auto; padding: 2px 8px; font-size: 0.7em;" onclick="removeModule(${index})">ERASE</button>
+            </li>`;
+        });
+    }
+
+    function removeModule(index) {
+        logMessage(`DECOMMISSIONED: ${modules[index].name}`);
+        modules.splice(index, 1);
+        renderModules();
+    }
+
+    function runProductionCycle() {
+        logMessage("--- STARTING PRODUCTION CYCLE ---");
+        modules.forEach(mod => {
+            const inputField = document.getElementById(mod.input);
+            const outputField = document.getElementById(mod.output);
+
+            if (!inputField || !outputField) {
+                return logMessage(`ERROR: Missing target UI elements for module: ${mod.name}`);
+            }
+
+            const currentInput = parseFloat(inputField.value) || 0;
+            const currentOutput = parseFloat(outputField.value) || 0;
+
+            if (currentInput >= mod.inQty) {
+                inputField.value = (currentInput - mod.inQty).toFixed(2);
+                outputField.value = (currentOutput + mod.outQty).toFixed(2);
+                
+                const inLabel = document.querySelector(`#modInputRes option[value="${mod.input}"]`).text;
+                const outLabel = document.querySelector(`#modOutputRes option[value="${mod.output}"]`).text;
+                logMessage(`SUCCESS: ${mod.name} processed ${mod.inQty} ${inLabel} into ${mod.outQty} ${outLabel}.`);
+            } else {
+                const inLabel = document.querySelector(`#modInputRes option[value="${mod.input}"]`).text;
+                logMessage(`FAILED: ${mod.name} has insufficient ${inLabel}!`);
+            }
+        });
+        calculateLogistics();
+    }
+
+    /* --- LOGISTICS & PLANAR SYSTEM --- */
+    function calculateLogistics() {
+        const city = document.getElementById('cityName').value;
+        const str = parseInt(document.getElementById('statStr').value) || 0;
+        const limit = str * 5; // Encumbrance threshold limit
+        let totalWeight = 0;
+
+        // 1. Core Global Manifest weight loop (dynamically scans all inputs tagged with class .res)
+        document.querySelectorAll('.res').forEach(input => {
+            const qty = parseFloat(input.value) || 0;
+            const unitWeight = parseFloat(input.getAttribute('data-weight')) || 0;
+            totalWeight += (qty * unitWeight);
+        });
+
+        // 2. Add Vault Inventory Weights
+        vaultItems.forEach(item => {
+            totalWeight += (item.weight || 0);
+        });
+
+        // 3. Gold Weight conversion (50 GP = 1 lb standard rule)
+        const gp = parseFloat(document.getElementById('bankGp').value) || 0;
+        totalWeight += (gp / 50);
+
+        // 4. GUI Rendering logic for current weight capacities
+        const status = totalWeight > limit ? "OVERBURDENED (Logistics Stalled)" : "PEAK EFFICIENCY";
+        const color = totalWeight > limit ? "#ff4444" : "#00ff00";
+        
+        document.getElementById('statusReport').innerHTML = 
+            `<span style="color: ${color}">${city.toUpperCase()} DISPLACEMENT: ${totalWeight.toFixed(2)} / ${limit} lbs</span><br>` +
+            `<span style="font-size: 0.7em; color: #aaa;">STATUS: ${status} (Backed by 1kg AU Wafer)</span>`;
+            
+        logMessage(`LEDGER SYNCED: Recalculated displacement for ${city}.`);
+    }
+
+    function planarExchange() {
+        let gp = parseFloat(document.getElementById('bankGp').value) || 0;
+        let ac = parseFloat(document.getElementById('bankAc').value) || 0;
+
+        if (gp >= 1000) {
+            gp -= 1000;
+            ac += 100; // Planar exchange 10:1 ratio conversion rate
+            document.getElementById('bankGp').value = gp.toFixed(2);
+            document.getElementById('bankAc').value = ac.toFixed(2);
+            logMessage("PLANAR EXCHANGE SUCCESS: 1000 GP converted to 100 Aether-Credits.");
+            calculateLogistics();
+        } else {
+            logMessage("INSUFFICIENT RESERVES: 1000 GP required for Planar Exchange.");
+        }
+    }
+    
+    // Initial UI Setup Execution
+    renderItems();
+    renderModules();
+    updateCityName();
+</script>
+
+</body>
+</html>

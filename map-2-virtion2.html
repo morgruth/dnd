@@ -3,615 +3,833 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Interactive VTT with Resources & Dungeons</title>
+<title>Fort Morgruth: VTT Sovereignty Engine</title>
 <style>
-html,body{margin:0;overflow:hidden;background:#1e1e1e;color:#eee;font-family:sans-serif;touch-action:none}
-canvas{display:block}
-#ui,#initiative,#popup{position:fixed;background:rgba(0,0,0,.85);padding:8px;border-radius:6px;z-index:10;font-size:14px;}
-#ui{left:8px;width:180px;top:8px}
-#initiative{right:8px;width:160px;top:8px}
-#popup{display:none;z-index:20}
-button,select,input{width:100%;margin-top:4px}
-.tokenTurn{padding:4px;margin-top:2px;background:#333;border-radius:4px;cursor:pointer}
-.active{background:#aa3333}
+html, body {
+    margin: 0;
+    overflow: hidden;
+    background: #050005;
+    color: #ff00ff;
+    font-family: 'Courier New', monospace;
+    touch-action: none;
+}
+canvas {
+    display: block;
+    cursor: crosshair;
+}
+.ui-panel {
+    position: fixed;
+    background: rgba(10, 0, 15, 0.9);
+    border: 2px solid #ff00ff;
+    padding: 10px;
+    border-radius: 6px;
+    z-index: 10;
+    box-shadow: 0 0 15px #ff00ff;
+    font-size: 14px;
+}
+#ui {
+    left: 10px;
+    width: 200px;
+    top: 10px;
+}
+#initiative {
+    right: 10px;
+    width: 180px;
+    top: 10px;
+}
+#stats-panel {
+    bottom: 10px;
+    left: 10px;
+    width: 250px;
+}
+#popup {
+    display: none;
+    position: fixed;
+    background: rgba(10, 0, 15, 0.95);
+    border: 2px solid #ff00ff;
+    padding: 12px;
+    border-radius: 6px;
+    z-index: 20;
+    box-shadow: 0 0 20px #ff00ff;
+    font-size: 14px;
+    color: #eee;
+}
+button, select, input {
+    background: #111;
+    color: #ff00ff;
+    border: 1px solid #ff00ff;
+    width: 100%;
+    margin-top: 6px;
+    padding: 6px;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-family: 'Courier New', monospace;
+    box-sizing: border-box;
+}
+button:hover {
+    background: #ff00ff;
+    color: #000;
+    cursor: pointer;
+}
+.tokenTurn {
+    padding: 4px;
+    margin-top: 4px;
+    background: #222;
+    border: 1px solid #ff00ff;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #eee;
+}
+.active {
+    background: #ff00ff;
+    color: #000;
+}
+.log {
+    font-size: 0.8em;
+    color: #0f0;
+    max-height: 80px;
+    overflow-y: auto;
+    margin-top: 8px;
+    border-top: 1px dashed #ff00ff;
+    padding-top: 4px;
+}
+hr {
+    border: 0;
+    border-top: 1px solid #ff00ff;
+    margin: 8px 0;
+}
 </style>
 </head>
 <body>
 
-<div id="ui">
-<select id="mode">
- <option value="pan">Pan</option>
- <option value="token">Place Token</option>
- <option value="resource">Place Resource</option>
-</select>
+<div id="ui" class="ui-panel">
+    <h3 style="margin: 0 0 8px 0; font-size: 16px; text-align: center;">Sovereign VTT</h3>
+    <label>Current Mode:</label>
+    <select id="mode">
+        <option value="pan">Pan Map</option>
+        <option value="token">Deploy PC Token</option>
+        <option value="monument">Place Monument (Claim)</option>
+        <option value="resource">Place Resource</option>
+    </select>
 
-<select id="resourceType">
- <option value="dungeon">Dungeon</option>
- <option value="chest">Chest</option>
- <option value="stoneMine">Stone Mine</option>
- <option value="goldMine">Gold Mine</option>
-</select>
+    <select id="resourceType">
+        <option value="dungeon">Dungeon</option>
+        <option value="chest">Chest</option>
+        <option value="stoneMine">Stone Mine</option>
+        <option value="goldMine">Gold Mine</option>
+    </select>
 
-<select id="fogView">
- <option value="dm">DM View</option>
- <option value="player">Player View</option>
-</select>
-
-<button id="save">Save</button>
-<input type="file" id="load">
+    <select id="fogView">
+        <option value="dm">DM View</option>
+        <option value="player">Player View</option>
+    </select>
+    
+    <button onclick="enterTheVoid()">Enter The Void</button>
+    <button onclick="resetView()">Return to Briar (0,0)</button>
+    <button id="save">Save Domain</button>
+    <input type="file" id="load" style="display:none;">
+    <button onclick="document.getElementById('load').click()">Load Domain</button>
 </div>
 
-<div id="initiative">
-<b>Initiative</b>
-<div id="order"></div>
-<button id="next">Next Turn</button>
+<div id="initiative" class="ui-panel">
+    <b style="color: #ff00ff; text-transform: uppercase;">Initiative</b>
+    <div id="order"></div>
+    <button id="next">Next Turn</button>
+</div>
+
+<div id="stats-panel" class="ui-panel">
+    <h4 style="margin: 0 0 6px 0;">Domain Status</h4>
+    <div id="coordDisplay">COORD: 0, 0</div>
+    <div id="zoneDisplay">ZONE: Material Plane</div>
+    <div id="stabilityDisplay">STABILITY: 100%</div>
+    <div id="vttLog" class="log">--- SOVEREIGNTY ENGINE ONLINE ---</div>
 </div>
 
 <div id="popup"></div>
 <canvas id="c"></canvas>
 
-<script src="monsters.js"></script>
-<script src="inventory.js"></script>
-<script src="main.js"></script>
 <script>
-/* ================= SETUP ================= */
-const c=document.getElementById('c'), ctx=c.getContext('2d');
-let w=c.width=innerWidth, h=c.height=innerHeight;
-onresize=()=>{w=c.width=innerWidth; h=c.height=innerHeight; draw();};
+/* ================= SETUP & CONFIGURATION ================= */
+const c = document.getElementById('c'), ctx = c.getContext('2d');
+let w = c.width = window.innerWidth, h = c.height = window.innerHeight;
 
-const grid=50;
-let offX=0, offY=0, dragging=false, dragStart=null, dragToken=null;
-const tiles={}, tokens=[], initiative=[], resources=[];
-let turn=0;
-const fog={};
+// Fallbacks for missing assets
+const monsterPool = [
+    {name: 'Grave Ghoul', hp: 8, atk: 2, maxHp: 8},
+    {name: 'Void Specter', hp: 12, atk: 3, maxHp: 12},
+    {name: 'Sentry Golem', hp: 18, atk: 1, maxHp: 18}
+];
+const lootPool = ['Void Core', 'Dark Potion', 'Sovereign Signet', 'Gothic Blade', 'Shadow Shard'];
 
-const biomeColor={grass:'#4b6f44',forest:'#2f4f2f',desert:'#c2b280',snow:'#e6f2ff',water:'#2a6bd6'};
-const resourceColor={dungeon:'#800080',chest:'#ffd700',stoneMine:'#888',goldMine:'#ffd700'};
-const CHUNK=8, seed=999;
+window.onresize = () => { w = c.width = window.innerWidth; h = c.height = window.innerHeight; draw(); };
 
-/* ================= HELPERS ================= */
-const key=(x,y)=>`${x},${y}`;
-const screenToWorld=(x,y)=>[Math.floor((x-offX)/grid), Math.floor((y-offY)/grid)];
-function rand(x,y){let n=x*374761393+y*668265263^seed;n=(n^(n>>13))*1274126177;return ((n^(n>>16))>>>0)/4294967295;}
+const grid = 50;
+let offX = 0, offY = 0, dragging = false, dragStart = null, dragToken = null;
+const tiles = {}, tokens = [], initiative = [], resources = [], claimedZones = [];
+let turn = 0;
+const fog = {};
+let isVoid = false;
 
-/* ================= BIOMES ================= */
-function tileAt(x,y){
- if(tiles[key(x,y)]) return tiles[key(x,y)];
- const r=rand(x,y); let t='grass';
- if(r<.07)t='water'; else if(r<.2)t='desert'; else if(r<.55)t='grass'; else if(r<.8)t='forest'; else t='snow';
- tiles[key(x,y)]=t;
- return t;
-}
-
-/* ================= FOG ================= */
-function reveal(token){
- const r=token.vision||3;
- fog[token.id]=fog[token.id]||{};
- for(let dx=-r;dx<=r;dx++)
- for(let dy=-r;dy<=r;dy++){
-  if(dx*dx+dy*dy>r*r)continue;
-  fog[token.id][key(token.x+dx,token.y+dy)]=false;
- }
-}
-
-function drawFog(){
- if(document.getElementById('fogView').value==='dm')return;
- ctx.fillStyle='rgba(0,0,0,.85)';
- const cols=Math.ceil(w/grid)+2,rows=Math.ceil(h/grid)+2;
- const sx=Math.floor(-offX/grid)-1,sy=Math.floor(-offY/grid)-1;
- for(let x=sx;x<sx+cols;x++)
- for(let y=sy;y<sy+rows;y++){
-  let visible=false;
-  for(const t of tokens) if(fog[t.id] && fog[t.id][key(x,y)]===false) visible=true;
-  if(!visible) ctx.fillRect(x*grid+offX,y*grid+offY,grid,grid);
- }
-}
-
-/* ================= INPUT ================= */
-const pointer=e=>{const t=e.touches?e.touches[0]:e;return [t.clientX,t.clientY];};
-
-c.onpointerdown=e=>{
- const [px,py]=pointer(e), [wx,wy]=screenToWorld(px,py);
- popup.style.display='none';
-
- // Check token click
- for(const t of tokens) if(t.x===wx && t.y===wy){ dragToken=t; showTokenPopup(px,py,t); return; }
- // Check resource click
- for(const r of resources) if(r.x===wx && r.y===wy){ showResourcePopup(px,py,r,tokens[turn]); return; }
-
- const mode=document.getElementById('mode').value;
- if(mode==='pan'){ dragging=true; dragStart=[px,py]; return; }
-
- if(mode==='token'){
-  if(tileAt(wx,wy)==='water')return;
-  const t={id:crypto.randomUUID(),x:wx,y:wy,name:'PC',vision:3,hp:10,inventory:[]};
-  tokens.push(t); initiative.push(t); reveal(t); updateInitiative(); draw();
- }
-
- if(mode==='resource'){
-  const type=document.getElementById('resourceType').value;
-  const r={x:wx,y:wy,type, loot:[], monsters:[], generated:false};
-  resources.push(r); draw();
- }
+// Color presets containing the structural environments and resources
+const biomeColor = {
+    grass: '#1a2b1a', 
+    forest: '#0a1d0f', 
+    desert: '#2d2514', 
+    snow: '#2b2a3a', 
+    water: '#0a1024'
 };
-
-c.onpointermove=e=>{
- const [px,py]=pointer(e);
- if(dragging){ offX+=px-dragStart[0]; offY+=py-dragStart[1]; dragStart=[px,py]; draw(); }
- if(dragToken){ const [wx,wy]=screenToWorld(px,py); dragToken.x=wx; dragToken.y=wy; reveal(dragToken); draw(); }
+const resourceColor = {
+    dungeon: '#ff00ff', 
+    chest: '#ffd700', 
+    stoneMine: '#888888', 
+    goldMine: '#ffd700'
 };
-c.onpointerup=()=>{dragging=false; dragToken=null};
+const seed = 999;
 
-/* ================= DRAW ================= */
-function draw(){
- ctx.clearRect(0,0,w,h);
- const cols=Math.ceil(w/grid)+2, rows=Math.ceil(h/grid)+2;
- const sx=Math.floor(-offX/grid)-1, sy=Math.floor(-offY/grid)-1;
-
- for(let x=sx;x<sx+cols;x++)
- for(let y=sy;y<sy+rows;y++){ ctx.fillStyle=biomeColor[tileAt(x,y)]; ctx.fillRect(x*grid+offX,y*grid+offY,grid,grid); }
-
- for(const r of resources){
-  ctx.fillStyle=resourceColor[r.type];
-  ctx.beginPath();
-  ctx.arc(r.x*grid+offX+grid/2,r.y*grid+offY+grid/2,grid/3,0,Math.PI*2);
-  ctx.fill();
- }
-
- for(const t of tokens){
-  ctx.fillStyle='#f44';
-  ctx.beginPath();
-  ctx.arc(t.x*grid+offX+grid/2,t.y*grid+offY+grid/2,grid/3,0,Math.PI*2);
-  ctx.fill();
- }
-
- ctx.strokeStyle='#555';
- for(let x=offX%grid;x<w;x+=grid){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke(); }
- for(let y=offY%grid;y<h;y+=grid){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke(); }
-
- drawFog();
-}
-
-/* ================= INITIATIVE ================= */
-const orderDiv=document.getElementById('order');
-let dragIdx=null;
-function updateInitiative(){
- orderDiv.innerHTML='';
- initiative.forEach((t,i)=>{
-  const d=document.createElement('div');
-  d.className='tokenTurn'+(i===turn?' active':'');
-  d.textContent=t.name; d.draggable=true;
-  d.ondragstart=()=>dragIdx=i;
-  d.ondragover=e=>e.preventDefault();
-  d.ondrop=()=>{initiative.splice(i,0,initiative.splice(dragIdx,1)[0]); updateInitiative();}
-  orderDiv.appendChild(d);
- });
-}
-document.getElementById('next').onclick=()=>{turn=(turn+1)%initiative.length; updateInitiative();};
-
-/* ================= RESOURCE INTERACTIONS ================= */
-const dungeonLootPool=['Gold','Potion','Magic Scroll','Gem','Weapon'];
-const dungeonMonstersPool=['Goblin','Orc','Skeleton','Slime','Troll'];
-
-function generateDungeonContents(){
- const lootCount=2+Math.floor(Math.random()*3);
- const monsterCount=1+Math.floor(Math.random()*3);
- const loot=[], monsters=[];
- for(let i=0;i<lootCount;i++) loot.push(dungeonLootPool[Math.floor(Math.random()*dungeonLootPool.length)]);
- for(let i=0;i<monsterCount;i++) monsters.push(dungeonMonstersPool[Math.floor(Math.random()*dungeonMonstersPool.length)]);
- return {loot, monsters};
-}
-
-function showResourcePopup(x,y,r, token){
- popup.style.left=x+'px';
- popup.style.top=y+'px';
- popup.style.display='block';
-
- if(r.type==='dungeon' && !r.generated){
-  const contents=generateDungeonContents();
-  r.loot=contents.loot; r.monsters=contents.monsters; r.generated=true;
- }
-
- let html=`<b>${r.type}</b><br>X:${r.x} Y:${r.y}<br>`;
- if(r.type!=='dungeon'){
-  html+=`Loot: ${r.loot.join(', ')}<br><button id="collect">Collect</button>`;
- } else {
-  html+=`Monsters: ${r.monsters.join(', ')}<br>`;
-  html+=`Loot: ${r.loot.join(', ')}<br>`;
-  html+=`<button id="enterDungeon">Enter Dungeon</button>`;
- }
- html+=`<button id="close">Close</button>`;
- popup.innerHTML=html;
-
- document.getElementById('collect')?.addEventListener('click',()=>{
-  token.inventory.push(...r.loot);
-  alert(`${token.name} collected: ${r.loot.join(', ')}`);
-  r.loot=[]; draw(); popup.style.display='none';
- });
-
- document.getElementById('enterDungeon')?.addEventListener('click',()=>{
-  token.inventory.push(...r.loot);
-  alert(`${token.name} battles: ${r.monsters.join(', ')} and finds loot: ${r.loot.join(', ')}`);
-  r.loot=[]; r.monsters=[]; draw(); popup.style.display='none';
- });
-
- document.getElementById('close').onclick=()=>{popup.style.display='none';};
-}
-
-/* ================= TOKEN POPUP & RENAME ================= */
-function showTokenPopup(x,y, token){
- popup.style.left=x+'px'; popup.style.top=y+'px'; popup.style.display='block';
- popup.innerHTML=`
- <b>Token: ${token.name}</b><br>
- Name: <input id="rename" value="${token.name}"><br>
- HP: <input type="number" id="hp" value="${token.hp}"><br>
- Vision: <input type="number" id="vision" value="${token.vision}"><br>
- <button id="ok">OK</button>
- <button id="closeToken">Close</button>
- `;
- document.getElementById('ok').onclick=()=>{
-  token.name=document.getElementById('rename').value;
-  token.hp=parseInt(document.getElementById('hp').value);
-  token.vision=parseInt(document.getElementById('vision').value);
-  updateInitiative(); draw(); popup.style.display='none';
- };
- document.getElementById('closeToken').onclick=()=>{popup.style.display='none';};
-}
-
-/* ================= INVENTORY ================= */
-function showInventory(token){
- popup.style.display='block'; popup.style.left='50px'; popup.style.top='50px';
- popup.innerHTML=`<b>${token.name} Inventory</b><br>${token.inventory.join(', ') || 'Empty'}<br><button id="closeInv">Close</button>`;
- document.getElementById('closeInv').onclick=()=>{popup.style.display='none';};
-}
-window.addEventListener('keydown',e=>{
- if(e.key==='i' && tokens.length>0){
-  const token=tokens[turn];
-  showInventory(token);
- }
+// Default items
+tokens.push({
+    id: 'morgruth-token', 
+    x: 0, 
+    y: 0, 
+    name: "MORGRUTH", 
+    color: "#ff00ff", 
+    aura: true, 
+    vision: 4, 
+    hp: 30, 
+    maxHp: 30, 
+    inventory: []
 });
+initiative.push(tokens[0]);
+claimedZones.push({x: 0, y: 0, radius: 4, name: "Briar Spire-City"});
 
-/* ================= SAVE / LOAD ================= */
-document.getElementById('save').onclick=()=>{
- const data={tiles,tokens,initiative,resources,offX,offY,fog};
- const a=document.createElement('a');
- a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));
- a.download='map.json';a.click();
-};
-document.getElementById('load').onchange=e=>{
- const r=new FileReader();
- r.onload=()=>{
-  const d=JSON.parse(r.result);
-  Object.assign(tiles,d.tiles);
-  tokens.splice(0,tokens.length,...d.tokens);
-  initiative.splice(0,initiative.length,...d.initiative);
-  resources.splice(0,resources.length,...d.resources);
-  offX=d.offX; offY=d.offY;
-  Object.assign(fog,d.fog);
-  updateInitiative(); draw();
- };
- r.readAsText(e.target.files[0]);
-};
-/* ===== Multi-Room Dungeon Exploration ===== */
-const dungeonLevels = {}; // dungeonId -> array of rooms
-
-function generateDungeon(id, roomsCount=3){
-  if(dungeonLevels[id]) return dungeonLevels[id];
-  const rooms = [];
-  for(let i=0;i<roomsCount;i++){
-    const monsters=[], loot=[];
-    const monsterCount = 1 + Math.floor(Math.random()*3);
-    const lootCount = 1 + Math.floor(Math.random()*3);
-    for(let j=0;j<monsterCount;j++){
-      monsters.push({...monsterPool[Math.floor(Math.random()*monsterPool.length)]});
-    }
-    for(let j=0;j<lootCount;j++){
-      loot.push(lootPool[Math.floor(Math.random()*lootPool.length)]);
-    }
-    rooms.push({monsters, loot, cleared:false});
-  }
-  dungeonLevels[id] = rooms;
-  return rooms;
+/* ================= HELPERS & MATH ================= */
+const key = (x,y) => `${x},${y}`;
+const screenToWorld = (x,y) => [
+    Math.floor((x - offX - w/2) / grid), 
+    Math.floor((y - offY - h/2) / grid)
+];
+const worldToScreen = (wx,wy) => [
+    wx * grid + offX + w/2, 
+    wy * grid + offY + h/2
+];
+function rand(x,y) {
+    let n = x * 374761393 + y * 668265263 ^ seed;
+    n = (n ^ (n >> 13)) * 1274126177;
+    return ((n ^ (n >> 16)) >>> 0) / 4294967295;
 }
 
-function enterDungeon(token, dungeonId){
-  const rooms = generateDungeon(dungeonId);
-  let currentRoom = 0;
+function logVTT(msg) {
+    const log = document.getElementById('vttLog');
+    log.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + log.innerHTML;
+}
 
-  function visitRoom(){
-    if(currentRoom >= rooms.length){
-      alert(`${token.name} cleared the dungeon!`);
-      return;
-    }
-    const room = rooms[currentRoom];
-    if(room.cleared){ currentRoom++; visitRoom(); return; }
+/* ================= PROCEDURAL BIOMES ================= */
+function tileAt(x,y) {
+    if (tiles[key(x,y)]) return tiles[key(x,y)];
+    const r = rand(x,y); 
+    let t = 'grass';
+    if (r < .07) t = 'water'; 
+    else if (r < .2) t = 'desert'; 
+    else if (r < .55) t = 'grass'; 
+    else if (r < .8) t = 'forest'; 
+    else t = 'snow';
+    tiles[key(x,y)] = t;
+    return t;
+}
 
-    // Popup for room
-    popup.style.display='block';
-    popup.style.left='100px';
-    popup.style.top='100px';
-    popup.innerHTML = `
-      <b>Dungeon Room ${currentRoom+1}</b><br>
-      Monsters: ${room.monsters.map(m=>m.name+'(HP:'+m.hp+')').join(', ') || 'None'}<br>
-      Loot: ${room.loot.join(', ') || 'None'}<br>
-      <button id="fightRoom">Fight</button>
-      <button id="skipRoom">Skip</button>
-    `;
-
-    document.getElementById('fightRoom').onclick = () => {
-      // Simple combat
-      room.monsters.forEach(m=>{
-        while(m.hp>0 && token.hp>0){
-          m.hp -= 2; // fixed attack
-          if(m.hp <=0) break;
-          token.hp -= m.atk;
+/* ================= FOG OF WAR ================= */
+function reveal(token) {
+    const r = token.vision || 3;
+    fog[token.id] = fog[token.id] || {};
+    for (let dx = -r; dx <= r; dx++) {
+        for (let dy = -r; dy <= r; dy++) {
+            if (dx * dx + dy * dy > r * r) continue;
+            fog[token.id][key(token.x + dx, token.y + dy)] = false;
         }
-      });
-      if(token.hp>0){
-        token.inventory.push(...room.loot);
-        alert(`${token.name} cleared the room and collected: ${room.loot.join(', ')}`);
-      } else {
-        alert(`${token.name} was defeated in the room!`);
-      }
-      room.cleared = true;
-      currentRoom++;
-      popup.style.display='none';
-      visitRoom();
-    };
+    }
+}
+reveal(tokens[0]);
 
-    document.getElementById('skipRoom').onclick = () => {
-      currentRoom++;
-      popup.style.display='none';
-      visitRoom();
-    };
-  }
-
-  visitRoom();
+function drawFog() {
+    if (document.getElementById('fogView').value === 'dm') return;
+    ctx.fillStyle = 'rgba(5, 0, 5, 0.92)';
+    const cols = Math.ceil(w / grid) + 2, rows = Math.ceil(h / grid) + 2;
+    const [sx, sy] = screenToWorld(0, 0);
+    
+    for (let x = sx - 1; x < sx + cols; x++) {
+        for (let y = sy - 1; y < sy + rows; y++) {
+            let visible = false;
+            for (const t of tokens) {
+                if (fog[t.id] && fog[t.id][key(x,y)] === false) visible = true;
+            }
+            if (!visible) {
+                const [scX, scY] = worldToScreen(x, y);
+                ctx.fillRect(scX, scY, grid, grid);
+            }
+        }
+    }
 }
 
-/* ===== Hook Into Resource Click ===== */
-function onResourceClick(token, resource){
-  if(resource.type==='dungeon'){
-    const dungeonId = `${resource.x},${resource.y}`;
-    if(!dungeonLevels[dungeonId]) generateDungeon(dungeonId, 3);
-    enterDungeon(token, dungeonId);
-  } else {
-    token.inventory.push(...resource.loot);
-    alert(`${token.name} collected: ${resource.loot.join(', ')}`);
-    resource.loot=[];
+/* ================= INPUT HANDLING ================= */
+const pointer = e => { const t = e.touches ? e.touches[0] : e; return [t.clientX, t.clientY]; };
+
+c.onpointerdown = e => {
+    const [px, py] = pointer(e), [wx, wy] = screenToWorld(px, py);
+    document.getElementById('popup').style.display = 'none';
+
+    // If a dungeon is active, let keydown handle inside navigation; click exits or switches focus
+    if (activeDungeon) {
+        activeDungeon = null;
+        logVTT("Exited dungeon view back to the world.");
+        draw();
+        return;
+    }
+
+    // Check token click
+    for (const t of tokens) {
+        if (t.x === wx && t.y === wy) { 
+            dragToken = t; 
+            showTokenPopup(px, py, t); 
+            return; 
+        }
+    }
+    // Check resource click
+    for (const r of resources) {
+        if (r.x === wx && r.y === wy) { 
+            onResourceClick(tokens[turn] || tokens[0], r, px, py); 
+            return; 
+        }
+    }
+
+    const mode = document.getElementById('mode').value;
+    if (mode === 'pan') { 
+        dragging = true; 
+        dragStart = [px, py]; 
+        return; 
+    }
+
+    if (mode === 'token') {
+        if (tileAt(wx, wy) === 'water') {
+            logVTT("DEPLOY FAIL: Cannot deploy onto deep liquid matrix.");
+            return;
+        }
+        const t = {
+            id: crypto.randomUUID(),
+            x: wx,
+            y: wy,
+            name: 'Warden-' + Math.floor(Math.random() * 100),
+            vision: 3,
+            hp: 12,
+            maxHp: 12,
+            inventory: [],
+            color: '#ffd700'
+        };
+        tokens.push(t); 
+        initiative.push(t); 
+        reveal(t); 
+        updateInitiative(); 
+        logVTT(`DEPLOY: Stationed ${t.name} at ${wx}, ${wy}`);
+        draw();
+    }
+
+    if (mode === 'monument') {
+        claimedZones.push({ x: wx, y: wy, radius: 5, name: "Sovereign Outpost" });
+        logVTT(`CLAIM: Sector ${wx}, ${wy} anchored to the Spire.`);
+        draw();
+    }
+
+    if (mode === 'resource') {
+        const type = document.getElementById('resourceType').value;
+        const r = { x: wx, y: wy, type, loot: [], monsters: [], generated: false };
+        if (type !== 'dungeon') {
+            r.loot.push(lootPool[Math.floor(Math.random() * lootPool.length)]);
+        }
+        resources.push(r); 
+        logVTT(`PLACED: Resource [${type}] configured at ${wx}, ${wy}`);
+        draw();
+    }
+
+    document.getElementById('coordDisplay').innerText = `COORD: ${wx}, ${wy}`;
+};
+
+c.onpointermove = e => {
+    const [px, py] = pointer(e);
+    if (dragging) {
+        offX += px - dragStart[0];
+        offY += py - dragStart[1];
+        dragStart = [px, py];
+        draw();
+    }
+    if (dragToken) {
+        const [wx, wy] = screenToWorld(px, py);
+        dragToken.x = wx;
+        dragToken.y = wy;
+        reveal(dragToken);
+        draw();
+    }
+};
+
+c.onpointerup = () => { dragging = false; dragToken = null; };
+
+/* ================= THE VOID MECHANICS ================= */
+function enterTheVoid() {
+    isVoid = true;
+    offX = -500000; 
+    offY = -500000;
+    document.getElementById('zoneDisplay').innerText = "ZONE: The Void (Root)";
+    document.getElementById('stabilityDisplay').innerText = "STABILITY: 21% (CRITICAL)";
+    logVTT("SYSTEM: Entered The Void. Quantum coordinates shifted.");
     draw();
-  }
 }
 
-/* ===== Visual Dungeon Rooms on Canvas ===== */
-function drawDungeonRoom(token, dungeonId, roomIndex){
-  const rooms = dungeonLevels[dungeonId];
-  if(!rooms || roomIndex >= rooms.length) return;
-
-  const room = rooms[roomIndex];
-  const roomSize = 4; // 4x4 grid
-  const roomGrid = 50;
-  const offsetX = 100; // arbitrary position on canvas
-  const offsetY = 100;
-
-  // Draw room floor
-  ctx.fillStyle = '#222';
-  ctx.fillRect(offsetX, offsetY, roomSize*roomGrid, roomSize*roomGrid);
-
-  // Draw monsters
-  room.monsters.forEach((m,i)=>{
-    ctx.fillStyle = '#f00';
-    ctx.fillRect(offsetX + (i%roomSize)*roomGrid + 5,
-                 offsetY + Math.floor(i/roomSize)*roomGrid + 5,
-                 roomGrid-10, roomGrid-10);
-  });
-
-  // Draw loot
-  room.loot.forEach((l,i)=>{
-    ctx.fillStyle = '#ff0';
-    ctx.beginPath();
-    ctx.arc(offsetX + (i%roomSize)*roomGrid + roomGrid/2,
-            offsetY + Math.floor(i/roomSize)*roomGrid + roomGrid/2,
-            roomGrid/6,0,Math.PI*2);
-    ctx.fill();
-  });
-
-  // Draw token
-  ctx.fillStyle = '#4af';
-  ctx.beginPath();
-  ctx.arc(offsetX + roomGrid/2, offsetY + roomGrid/2, roomGrid/3,0,Math.PI*2);
-  ctx.fill();
+function resetView() {
+    isVoid = false;
+    offX = 0;
+    offY = 0;
+    document.getElementById('zoneDisplay').innerText = "ZONE: Material Plane";
+    document.getElementById('stabilityDisplay').innerText = "STABILITY: 100%";
+    logVTT("SYSTEM: Returned to Material Spire coordinates.");
+    draw();
 }
 
-/* ===== Hook Into enterDungeon ===== */
-function enterDungeon(token, dungeonId){
-  const rooms = generateDungeon(dungeonId);
-  let currentRoom = 0;
+/* ================= RENDERING AND GRAPHICS ================= */
+function draw() {
+    ctx.clearRect(0, 0, w, h);
 
-  function visitRoom(){
-    if(currentRoom >= rooms.length){
-      alert(`${token.name} cleared the dungeon!`);
-      draw(); // redraw main map
-      return;
-    }
-    const room = rooms[currentRoom];
-    if(room.cleared){ currentRoom++; visitRoom(); return; }
+    // Render Grid & Biomes
+    if (isVoid) {
+        ctx.fillStyle = "#050005";
+        ctx.fillRect(0, 0, w, h);
+    } else {
+        ctx.fillStyle = "#0a0a10";
+        ctx.fillRect(0, 0, w, h);
+        
+        const cols = Math.ceil(w / grid) + 2, rows = Math.ceil(h / grid) + 2;
+        const [sx, sy] = screenToWorld(0, 0);
 
-    draw(); // redraw main map
-    drawDungeonRoom(token, dungeonId, currentRoom);
-
-    popup.style.display='block';
-    popup.style.left='100px';
-    popup.style.top='100px';
-    popup.innerHTML = `
-      <b>Dungeon Room ${currentRoom+1}</b><br>
-      Monsters: ${room.monsters.map(m=>m.name+'(HP:'+m.hp+')').join(', ') || 'None'}<br>
-      Loot: ${room.loot.join(', ') || 'None'}<br>
-      <button id="fightRoom">Fight</button>
-      <button id="nextRoom">Skip</button>
-    `;
-
-    document.getElementById('fightRoom').onclick = () => {
-      room.monsters.forEach(m=>{
-        while(m.hp>0 && token.hp>0){
-          m.hp -= 2;
-          if(m.hp<=0) break;
-          token.hp -= m.atk;
+        for (let x = sx - 1; x < sx + cols; x++) {
+            for (let y = sy - 1; y < sy + rows; y++) {
+                const [scX, scY] = worldToScreen(x, y);
+                ctx.fillStyle = biomeColor[tileAt(x, y)];
+                ctx.fillRect(scX, scY, grid, grid);
+            }
         }
-      });
-      if(token.hp>0){
-        token.inventory.push(...room.loot);
-        alert(`${token.name} cleared the room and collected: ${room.loot.join(', ')}`);
-      } else {
-        alert(`${token.name} was defeated in the room!`);
-      }
-      room.cleared = true;
-      currentRoom++;
-      popup.style.display='none';
-      visitRoom();
-    };
+    }
 
-    document.getElementById('nextRoom').onclick = () => {
-      currentRoom++;
-      popup.style.display='none';
-      visitRoom();
-    };
-  }
-
-  visitRoom();
-}
-
-/* ===== Dungeon Token Movement ===== */
-let activeDungeon = null; // {dungeonId, token, roomIndex}
-const dungeonRoomSize = 4;
-const dungeonGrid = 50;
-let dungeonTokenPos = {x:0, y:0};
-
-function drawDungeon(token, dungeonId, roomIndex){
-  const rooms = dungeonLevels[dungeonId];
-  if(!rooms || roomIndex >= rooms.length) return;
-  const room = rooms[roomIndex];
-
-  const offsetX = 100;
-  const offsetY = 100;
-
-  // Draw room floor
-  ctx.fillStyle = '#222';
-  ctx.fillRect(offsetX, offsetY, dungeonRoomSize*dungeonGrid, dungeonRoomSize*dungeonGrid);
-
-  // Draw monsters
-  room.monsters.forEach((m,i)=>{
-    ctx.fillStyle = '#f00';
-    ctx.fillRect(offsetX + m.x*dungeonGrid + 5,
-                 offsetY + m.y*dungeonGrid + 5,
-                 dungeonGrid-10, dungeonGrid-10);
-  });
-
-  // Draw loot
-  room.loot.forEach((l,i)=>{
-    ctx.fillStyle = '#ff0';
+    // Grid Matrix Line Art
+    ctx.strokeStyle = isVoid ? "#330033" : "#1a1a24";
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.arc(offsetX + l.x*dungeonGrid + dungeonGrid/2,
-            offsetY + l.y*dungeonGrid + dungeonGrid/2,
-            dungeonGrid/6,0,Math.PI*2);
-    ctx.fill();
-  });
-
-  // Draw token
-  ctx.fillStyle = '#4af';
-  ctx.beginPath();
-  ctx.arc(offsetX + dungeonTokenPos.x*dungeonGrid + dungeonGrid/2,
-          offsetY + dungeonTokenPos.y*dungeonGrid + dungeonGrid/2,
-          dungeonGrid/3,0,Math.PI*2);
-  ctx.fill();
-
-  // Draw grid lines
-  ctx.strokeStyle = '#555';
-  for(let i=0;i<=dungeonRoomSize;i++){
-    ctx.beginPath();
-    ctx.moveTo(offsetX+i*dungeonGrid, offsetY);
-    ctx.lineTo(offsetX+i*dungeonGrid, offsetY + dungeonRoomSize*dungeonGrid);
+    for (let x = (offX + w/2) % grid; x < w; x += grid) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
+    for (let y = (offY + h/2) % grid; y < h; y += grid) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
     ctx.stroke();
 
-    ctx.beginPath();
-    ctx.moveTo(offsetX, offsetY+i*dungeonGrid);
-    ctx.lineTo(offsetX + dungeonRoomSize*dungeonGrid, offsetY+i*dungeonGrid);
-    ctx.stroke();
-  }
-}
-/* ===== Enter Dungeon with Movement ===== */
-function enterDungeonWithMovement(token, dungeonId){
-  const rooms = generateDungeon(dungeonId);
-  let roomIndex = 0;
+    // Sovereign Claims
+    claimedZones.forEach(zone => {
+        const [sx, sy] = worldToScreen(zone.x, zone.y);
+        ctx.fillStyle = "rgba(100, 0, 255, 0.12)";
+        ctx.beginPath();
+        ctx.arc(sx, sy, zone.radius * grid, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ff00ff";
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        
+        ctx.fillStyle = "#ff00ff";
+        ctx.font = "10px 'Courier New'";
+        ctx.fillText(zone.name.toUpperCase(), sx - 50, sy - (zone.radius * grid) - 8);
+    });
 
-  function visitRoom(){
-    if(roomIndex >= rooms.length){
-      alert(`${token.name} cleared the dungeon!`);
-      activeDungeon = null;
-      draw(); // redraw main map
-      return;
+    // Resources
+    resources.forEach(r => {
+        const [sx, sy] = worldToScreen(r.x, r.y);
+        ctx.fillStyle = resourceColor[r.type] || '#fff';
+        ctx.beginPath();
+        ctx.arc(sx + grid/2, sy + grid/2, grid/3, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Dynamic label
+        ctx.fillStyle = "#eee";
+        ctx.font = "9px 'Courier New'";
+        ctx.fillText(r.type.toUpperCase(), sx + 2, sy + grid - 2);
+    });
+
+    // Token Rendering
+    tokens.forEach(t => {
+        const [sx, sy] = worldToScreen(t.x, t.y);
+        
+        if (t.aura) {
+            const pulse = Math.sin(Date.now() / 300) * 8 + 16;
+            ctx.shadowBlur = pulse;
+            ctx.shadowColor = t.color || "#ff00ff";
+            ctx.strokeStyle = t.color || "#ff00ff";
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(sx + grid/2, sy + grid/2, grid/2.3, 0, Math.PI*2);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+        }
+
+        ctx.fillStyle = t.color || "#f44";
+        ctx.beginPath();
+        ctx.arc(sx + grid/2, sy + grid/2, grid/3, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = "#fff";
+        ctx.font = "11px 'Courier New'";
+        ctx.fillText(t.name, sx, sy - 6);
+    });
+
+    drawFog();
+
+    if (isVoid) {
+        ctx.globalAlpha = 0.25;
+        for (let i = 0; i < 40; i++) {
+            ctx.fillStyle = Math.random() > 0.8 ? "#fff" : "#ff00ff";
+            ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+        }
+        ctx.globalAlpha = 1.0;
     }
-    const room = rooms[roomIndex];
-    if(room.cleared){ roomIndex++; visitRoom(); return; }
 
-    // Initialize token in top-left
-    dungeonTokenPos = {x:0, y:0};
-    activeDungeon = {token, dungeonId, roomIndex};
-    draw(); drawDungeon(token, dungeonId, roomIndex);
-    alert(`Entering Dungeon Room ${roomIndex+1}`);
-  }
-
-  visitRoom();
+    if (activeDungeon) {
+        drawDungeon(activeDungeon.token, activeDungeon.dungeonId, activeDungeon.roomIndex);
+    }
 }
 
-/* ===== Dungeon Controls ===== */
-window.addEventListener('keydown', e=>{
-  if(!activeDungeon) return;
-  const {token,dungeonId,roomIndex} = activeDungeon;
-  const room = dungeonLevels[dungeonId][roomIndex];
-  const dx = {ArrowLeft:-1, ArrowRight:1, ArrowUp:0, ArrowDown:0}[e.key] || 0;
-  const dy = {ArrowLeft:0, ArrowRight:0, ArrowUp:-1, ArrowDown:1}[e.key] || 0;
+// Continuous requestAnimationFrame gameloop for rendering pulses/glowing graphics
+function tick() {
+    draw();
+    requestAnimationFrame(tick);
+}
+requestAnimationFrame(tick);
 
-  if(dx!==0 || dy!==0){
-    const nx = dungeonTokenPos.x + dx;
-    const ny = dungeonTokenPos.y + dy;
-    if(nx>=0 && nx<dungeonRoomSize && ny>=0 && ny<dungeonRoomSize){
-      dungeonTokenPos.x = nx;
-      dungeonTokenPos.y = ny;
-      draw(); drawDungeon(token,dungeonId,roomIndex);
+/* ================= INITIATIVE & GAMEFLOW ================= */
+const orderDiv = document.getElementById('order');
+let dragIdx = null;
 
-      // Check for monsters at new position
-      const mIdx = room.monsters.findIndex(m=>m.x===nx && m.y===ny);
-      if(mIdx>=0){
-        const monster = room.monsters[mIdx];
-        monster.hp -= 2; // simple token attack
-        token.hp -= monster.atk;
-        alert(`${token.name} hits ${monster.name}! ${monster.name} HP: ${monster.hp}. Token HP: ${token.hp}`);
-        if(monster.hp<=0){ room.monsters.splice(mIdx,1); alert(`${monster.name} defeated!`); }
-        if(token.hp<=0){ alert(`${token.name} is down!`); activeDungeon=null; draw(); return; }
-      }
+function updateInitiative() {
+    orderDiv.innerHTML = '';
+    initiative.forEach((t, i) => {
+        const d = document.createElement('div');
+        d.className = 'tokenTurn' + (i === turn ? ' active' : '');
+        d.textContent = t.name; 
+        d.draggable = true;
+        d.ondragstart = () => dragIdx = i;
+        d.ondragover = e => e.preventDefault();
+        d.ondrop = () => {
+            initiative.splice(i, 0, initiative.splice(dragIdx, 1)[0]);
+            updateInitiative();
+        };
+        orderDiv.appendChild(d);
+    });
+}
+document.getElementById('next').onclick = () => {
+    if (initiative.length === 0) return;
+    turn = (turn + 1) % initiative.length; 
+    updateInitiative();
+    logVTT(`TURN SHIFT: Active combatant is now ${initiative[turn].name}`);
+};
+updateInitiative();
 
-      // Check for loot at new position
-      const lIdx = room.loot.findIndex(l=>l.x===nx && l.y===ny);
-      if(lIdx>=0){
-        const loot = room.loot[lIdx];
-        token.inventory.push(loot.item);
-        alert(`${token.name} collects ${loot.item}`);
-        room.loot.splice(lIdx,1);
-      }
+/* ================= RESOURCE & INTERACTION OVERLAYS ================= */
+const popup = document.getElementById('popup');
 
-      // Room cleared check
-      if(room.monsters.length===0 && room.loot.length===0){
-        room.cleared=true;
-        alert(`Room cleared!`);
-        roomIndex++;
-        visitRoom();
-      }
+function onResourceClick(token, r, px, py) {
+    if (r.type === 'dungeon') {
+        const dungeonId = `${r.x},${r.y}`;
+        if (!dungeonLevels[dungeonId]) generateDungeon(dungeonId, 3);
+        enterDungeonWithMovement(token, dungeonId);
+    } else {
+        popup.style.left = px + 'px';
+        popup.style.top = py + 'px';
+        popup.style.display = 'block';
+
+        let html = `<b>${r.type.toUpperCase()}</b><br>COORD: ${r.x}, ${r.y}<br><hr>`;
+        if (r.loot.length > 0) {
+            html += `Loot Container: ${r.loot.join(', ')}<br>`;
+            html += `<button id="collect">Collect Resources</button>`;
+        } else {
+            html += `Container empty.<br>`;
+        }
+        html += `<button id="close">Close</button>`;
+        popup.innerHTML = html;
+
+        document.getElementById('collect')?.addEventListener('click', () => {
+            token.inventory = token.inventory || [];
+            token.inventory.push(...r.loot);
+            logVTT(`${token.name} gathered: ${r.loot.join(', ')}`);
+            r.loot = []; 
+            popup.style.display = 'none';
+        });
+        document.getElementById('close').onclick = () => { popup.style.display = 'none'; };
     }
-  }
+}
+
+/* ================= TOKEN POPUP EDITING ================= */
+function showTokenPopup(x, y, token) {
+    popup.style.left = x + 'px'; 
+    popup.style.top = y + 'px'; 
+    popup.style.display = 'block';
+    popup.innerHTML = `
+        <b>EDIT LEGION: ${token.name}</b><hr>
+        NAME: <input id="rename" value="${token.name}"><br>
+        HP: <input type="number" id="hp" value="${token.hp || 10}"><br>
+        VISION: <input type="number" id="vision" value="${token.vision || 3}"><br>
+        <button id="ok">APPLY CONFIG</button>
+        <button id="closeToken">CANCEL</button>
+    `;
+    document.getElementById('ok').onclick = () => {
+        token.name = document.getElementById('rename').value;
+        token.hp = parseInt(document.getElementById('hp').value);
+        token.vision = parseInt(document.getElementById('vision').value);
+        updateInitiative(); 
+        popup.style.display = 'none';
+        logVTT(`UPDATED: Legion profile of ${token.name}`);
+    };
+    document.getElementById('closeToken').onclick = () => { popup.style.display = 'none'; };
+}
+
+/* ================= INVENTORY CONTROL ================= */
+function showInventory(token) {
+    popup.style.display = 'block'; 
+    popup.style.left = '50px'; 
+    popup.style.top = '50px';
+    popup.innerHTML = `
+        <b>${token.name} Inventory</b><hr>
+        ${(token.inventory && token.inventory.length > 0) ? token.inventory.join('<br>') : 'No materials collected.'}<br>
+        <button id="closeInv">Close</button>
+    `;
+    document.getElementById('closeInv').onclick = () => { popup.style.display = 'none'; };
+}
+
+window.addEventListener('keydown', e => {
+    if (e.key === 'i' || e.key === 'I') {
+        const token = tokens[turn] || tokens[0];
+        if (token) showInventory(token);
+    }
 });
 
-draw();
+/* ================= ACTIVE LEVEL DUNGEONS WITH INTERACTION ================= */
+const dungeonLevels = {}; // dungeonId -> array of rooms
+let activeDungeon = null; // {dungeonId, token, roomIndex}
+const dungeonRoomSize = 6;
+const dungeonGrid = 40;
+let dungeonTokenPos = {x: 0, y: 0};
+
+function generateDungeon(id, roomsCount = 3) {
+    if (dungeonLevels[id]) return dungeonLevels[id];
+    const rooms = [];
+    for (let i = 0; i < roomsCount; i++) {
+        const monsters = [], loot = [];
+        const monsterCount = 1 + Math.floor(Math.random() * 2);
+        const lootCount = 1 + Math.floor(Math.random() * 2);
+        
+        for (let j = 0; j < monsterCount; j++) {
+            const template = monsterPool[Math.floor(Math.random() * monsterPool.length)];
+            monsters.push({
+                ...template,
+                x: Math.floor(1 + Math.random() * (dungeonRoomSize - 2)),
+                y: Math.floor(1 + Math.random() * (dungeonRoomSize - 2))
+            });
+        }
+        for (let j = 0; j < lootCount; j++) {
+            loot.push({
+                item: lootPool[Math.floor(Math.random() * lootPool.length)],
+                x: Math.floor(1 + Math.random() * (dungeonRoomSize - 2)),
+                y: Math.floor(1 + Math.random() * (dungeonRoomSize - 2))
+            });
+        }
+        rooms.push({ monsters, loot, cleared: false });
+    }
+    dungeonLevels[id] = rooms;
+    return rooms;
+}
+
+function enterDungeonWithMovement(token, dungeonId) {
+    const rooms = generateDungeon(dungeonId);
+    let roomIndex = 0;
+
+    function visitRoom() {
+        if (roomIndex >= rooms.length) {
+            alert(`${token.name} has successfully cleared the dungeon!`);
+            logVTT(`LEGION COMPLETED DUNGEON: ${token.name} cleared coordinates ${dungeonId}`);
+            activeDungeon = null;
+            return;
+        }
+        const room = rooms[roomIndex];
+        if (room.cleared) { 
+            roomIndex++; 
+            visitRoom(); 
+            return; 
+        }
+
+        // Initialize user inside top-left corner
+        dungeonTokenPos = { x: 0, y: 0 };
+        activeDungeon = { token, dungeonId, roomIndex, visitNextRoom: visitRoom };
+        logVTT(`ENTERING: Chamber room ${roomIndex + 1} inside dungeon ${dungeonId}. Use Arrow Keys.`);
+    }
+
+    visitRoom();
+}
+
+function drawDungeon(token, dungeonId, roomIndex) {
+    const rooms = dungeonLevels[dungeonId];
+    if (!rooms || roomIndex >= rooms.length) return;
+    const room = rooms[roomIndex];
+
+    // Centered window drawing position
+    const offsetX = w / 2 - (dungeonRoomSize * dungeonGrid) / 2;
+    const offsetY = h / 2 - (dungeonRoomSize * dungeonGrid) / 2;
+
+    // Draw Background Mask overlay
+    ctx.fillStyle = 'rgba(5,0,5,0.85)';
+    ctx.fillRect(0, 0, w, h);
+
+    // Draw room Floor
+    ctx.fillStyle = '#100015';
+    ctx.strokeStyle = '#ff00ff';
+    ctx.lineWidth = 3;
+    ctx.fillRect(offsetX, offsetY, dungeonRoomSize * dungeonGrid, dungeonRoomSize * dungeonGrid);
+    ctx.strokeRect(offsetX, offsetY, dungeonRoomSize * dungeonGrid, dungeonRoomSize * dungeonGrid);
+
+    // Grid lines inside the active chamber
+    ctx.strokeStyle = '#2d003a';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= dungeonRoomSize; i++) {
+        ctx.beginPath();
+        ctx.moveTo(offsetX + i * dungeonGrid, offsetY);
+        ctx.lineTo(offsetX + i * dungeonGrid, offsetY + dungeonRoomSize * dungeonGrid);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(offsetX, offsetY + i * dungeonGrid);
+        ctx.lineTo(offsetX + dungeonRoomSize * dungeonGrid, offsetY + i * dungeonGrid);
+        ctx.stroke();
+    }
+
+    // Render Monsters
+    room.monsters.forEach(m => {
+        ctx.fillStyle = '#ff0055';
+        ctx.fillRect(offsetX + m.x * dungeonGrid + 6, offsetY + m.y * dungeonGrid + 6, dungeonGrid - 12, dungeonGrid - 12);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '8px monospace';
+        ctx.fillText(m.name.split(' ')[0], offsetX + m.x * dungeonGrid + 4, offsetY + m.y * dungeonGrid + 14);
+        ctx.fillText(`HP:${m.hp}`, offsetX + m.x * dungeonGrid + 4, offsetY + m.y * dungeonGrid + 28);
+    });
+
+    // Render Room Loot
+    room.loot.forEach(l => {
+        ctx.fillStyle = '#00ffcc';
+        ctx.beginPath();
+        ctx.arc(offsetX + l.x * dungeonGrid + dungeonGrid/2, offsetY + l.y * dungeonGrid + dungeonGrid/2, dungeonGrid/5, 0, Math.PI*2);
+        ctx.fill();
+    });
+
+    // Render Active Hero Token
+    ctx.fillStyle = '#00ffff';
+    ctx.beginPath();
+    ctx.arc(offsetX + dungeonTokenPos.x * dungeonGrid + dungeonGrid/2, offsetY + dungeonTokenPos.y * dungeonGrid + dungeonGrid/2, dungeonGrid/3, 0, Math.PI*2);
+    ctx.fill();
+
+    // UI overlays instructions on the screen
+    ctx.fillStyle = "#ff00ff";
+    ctx.font = "14px 'Courier New'";
+    ctx.fillText(`CHAMBER: ${roomIndex + 1} / ${rooms.length}`, offsetX, offsetY - 35);
+    ctx.font = "12px 'Courier New'";
+    ctx.fillStyle = "#eee";
+    ctx.fillText("USE ARROW KEYS TO NAVIGATE AND FIGHT. CLICK MAP TO EXIT.", offsetX, offsetY - 15);
+}
+
+/* ================= DUNGEON MOVEMENT / COMBAT HANDLERS ================= */
+window.addEventListener('keydown', e => {
+    if (!activeDungeon) return;
+    
+    const { token, dungeonId, roomIndex, visitNextRoom } = activeDungeon;
+    const room = dungeonLevels[dungeonId][roomIndex];
+    
+    const dx = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: 0, ArrowDown: 0 }[e.key] || 0;
+    const dy = { ArrowLeft: 0, ArrowRight: 0, ArrowUp: -1, ArrowDown: 1 }[e.key] || 0;
+
+    if (dx !== 0 || dy !== 0) {
+        e.preventDefault();
+        const nx = dungeonTokenPos.x + dx;
+        const ny = dungeonTokenPos.y + dy;
+        
+        if (nx >= 0 && nx < dungeonRoomSize && ny >= 0 && ny < dungeonRoomSize) {
+            dungeonTokenPos.x = nx;
+            dungeonTokenPos.y = ny;
+
+            // Monster encounter checks
+            const mIdx = room.monsters.findIndex(m => m.x === nx && m.y === ny);
+            if (mIdx >= 0) {
+                const monster = room.monsters[mIdx];
+                monster.hp -= 3; // Warden basic attack dmg
+                token.hp -= monster.atk;
+                logVTT(`COMBAT: Hit ${monster.name}! Left: ${monster.hp} HP. Warden HP: ${token.hp}`);
+                
+                if (monster.hp <= 0) {
+                    room.monsters.splice(mIdx, 1);
+                    logVTT(`DEFEATED: ${monster.name} vanished into digital dust.`);
+                }
+                if (token.hp <= 0) {
+                    alert(`${token.name} fell in battle!`);
+                    logVTT(`FALLEN: ${token.name} has died inside dungeon floor.`);
+                    activeDungeon = null;
+                    return;
+                }
+            }
+
+            // Loot pick checks
+            const lIdx = room.loot.findIndex(l => l.x === nx && l.y === ny);
+            if (lIdx >= 0) {
+                const lootItem = room.loot[lIdx];
+                token.inventory = token.inventory || [];
+                token.inventory.push(lootItem.item);
+                logVTT(`LOOT: ${token.name} collected [${lootItem.item}]`);
+                room.loot.splice(lIdx, 1);
+            }
+
+            // Room Clear check
+            if (room.monsters.length === 0 && room.loot.length === 0) {
+                room.cleared = true;
+                logVTT(`CHAMBER CLEARED! Advancing deep exploration.`);
+                activeDungeon.roomIndex++;
+                visitNextRoom();
+            }
+        }
+    }
+});
+
+/* ================= EXPORT SYSTEM / IMPORTS ================= */
+document.getElementById('save').onclick = () => {
+    const data = { tiles, tokens, initiative, resources, offX, offY, fog, claimedZones };
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(data)], { type: 'application/json' }));
+    a.download = 'sovereignty-map.json'; 
+    a.click();
+    logVTT("SYSTEM: Domain state files downloaded successfully.");
+};
+
+document.getElementById('load').onchange = e => {
+    const reader = new FileReader();
+    reader.onload = () => {
+        const d = JSON.parse(reader.result);
+        Object.assign(tiles, d.tiles || {});
+        tokens.splice(0, tokens.length, ...(d.tokens || []));
+        initiative.splice(0, initiative.length, ...(d.initiative || []));
+        resources.splice(0, resources.length, ...(d.resources || []));
+        claimedZones.splice(0, claimedZones.length, ...(d.claimedZones || []));
+        offX = d.offX || 0; 
+        offY = d.offY || 0;
+        Object.assign(fog, d.fog || {});
+        updateInitiative(); 
+        logVTT("SYSTEM: Domain loaded successfully. Interface updated.");
+    };
+    reader.readAsText(e.target.files[0]);
+};
 </script>
 </body>
 </html>

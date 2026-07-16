@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fantasy City &amp; Settlement Sheet</title>
+    <style>
+        :root {
+            --dnd-red: #8b0000;
+            --dnd-dark-red: #5c0000;
+            --border-gray: #b2b2b2;
+            --bg-light: #fdfbf7;
+            --font-main: 'Georgia', serif;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #edebe6;
+            margin: 0;
+            padding: 20px;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--bg-light);
+            padding: 25px;
+            border: 2px solid #5d4a36;
+            border-radius: 4px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Menu Bar */
+        .action-bar {
+            background-color: #3e3023;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .btn {
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+        }
+
+        .btn-save {
+            background-color: #d1a153;
+            color: #1a120b;
+        }
+
+        .btn-save:hover {
+            background-color: #e5b869;
+        }
+
+        .btn-load {
+            background-color: #4a6b82;
+            color: white;
+        }
+
+        .btn-load:hover {
+            background-color: #5c839e;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Header block */
+        header {
+            display: flex;
+            border: 1px solid var(--border-gray);
+            border-radius: 6px;
+            margin-bottom: 25px;
+            background-color: #fff;
+        }
+
+        .city-name-box {
+            flex: 1;
+            padding: 15px;
+            border-right: 1px solid var(--border-gray);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .city-name-box label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #777;
+        }
+
+        .city-name-box input {
+            font-family: var(--font-main);
+            font-size: 24px;
+            border: none;
+            border-bottom: 1px solid var(--border-gray);
+            outline: none;
+            background: transparent;
+            width: 95%;
+        }
+
+        .header-details-grid {
+            flex: 2;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .detail-item label {
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .detail-item input {
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            padding: 4px 0;
+            font-weight: 500;
+            outline: none;
+        }
+
+        /* Three Column Layout */
+        .sheet-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .sheet-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Boxes & Sections */
+        .box {
+            background-color: #fff;
+            border: 1px solid var(--border-gray);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .box-title {
+            font-family: var(--font-main);
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 4px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            color: var(--dnd-dark-red);
+        }
+
+        /* Attributes and modifiers */
+        .attributes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .attr-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            background: #fff;
+            padding: 5px 10px;
+        }
+
+        .attr-label {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 130px;
+        }
+
+        .attr-inputs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .attr-inputs input[type="number"] {
+            width: 45px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 4px;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+        }
+
+        /* Single values */
+        .bubble-row {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-gray);
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin-bottom: 15px;
+            background: white;
+        }
+
+        .bubble-row label {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            flex: 1;
+        }
+
+        .bubble-row input {
+            width: 80px;
+            text-align: center;
+            border: 1px solid var(--border-gray);
+            border-radius: 10px;
+            height: 25px;
+            font-weight: bold;
+        }
+
+        /* Checklist style */
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        /* Column 2 elements */
+        .combat-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .combat-box {
+            border: 1px solid var(--border-gray);
+            border-radius: 6px;
+            background: #fff;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .combat-box label {
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .combat-box input {
+            width: 100%;
+            border: none;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            box-sizing: border-box;
+            background: transparent;
+        }
+
+        /* Textareas */
+        textarea {
+            width: 100%;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 12px;
+            padding: 6px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        /* Table Inputs */
+        .attack-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .attack-table th {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #555;
+            text-align: left;
+            border-bottom: 1px solid var(--border-gray);
+            padding-bottom: 4px;
+        }
+
+        .attack-table td {
+            padding: 4px 0;
+        }
+
+        .attack-table input {
+            width: 95%;
+            border: none;
+            border-bottom: 1px solid #eee;
+            padding: 3px 0;
+            font-size: 12px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            border-top: 1px solid var(--border-gray);
+            padding-top: 15px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Action Top Bar -->
+    <div class="action-bar">
+        <button class="btn btn-save" onclick="saveToJSON()">Save City to JSON</button>
+        <button class="btn btn-load" onclick="document.getElementById('fileInput').click()">Load from JSON</button>
+        <input type="file" id="fileInput" accept=".json" onchange="loadFromJSON(event)">
+    </div>
+
+    <form id="citySheet">
+        <!-- HEADER BLOCK -->
+        <header>
+            <div class="city-name-box">
+                <input type="text" id="cityName" placeholder="Waterdeep">
+                <label>City Name</label>
+            </div>
+            <div class="header-details-grid">
+                <div class="detail-item">
+                    <input type="text" id="rulerLeader" placeholder="Open Lord Laeral Silverhand">
+                    <label>Ruler / Leadership</label>
+                </div>
+                <div class="detail-item">
+                    <input type="text" id="region" placeholder="The Sword Coast">
+                    <label>Region / Kingdom</label>
+                </div>
+                <div class="detail-item">
+                    <input type="text" id="settlementType" placeholder="Metropolis">
+                    <label>Settlement Type &amp; Size</label>
+                </div>
+                <div class="detail-item">
+                    <input type="text" id="demographics" placeholder="60% Human, 20% Elf, 10% Dwarf...">
+                    <label>Demographics</label>
+                </div>
+                <div class="detail-item">
+                    <input type="text" id="alignment" placeholder="Lawful Neutral">
+                    <label>Predominant Alignment</label>
+                </div>
+                <div class="detail-item">
+                    <input type="text" id="population" placeholder="130,000">
+                    <label>Approx. Population</label>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN THREE COLUMN BODY -->
+        <div class="sheet-body">
+            
+            <!-- COLUMN 1: Attributes, Taxes, Core Services -->
+            <div class="column">
+                <div class="box">
+                    <h3 class="box-title">City Attributes (Scale 1-20)</h3>
+                    <div class="attributes-container">
+                        <div class="attr-box">
+                            <span class="attr-label">Defense (Military)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_defense" placeholder="10"></div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Wealth (Trade)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_wealth" placeholder="10"></div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Magic (Resources)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_magic" placeholder="10"></div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Industry (Labor)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_industry" placeholder="10"></div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Order (Law)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_order" placeholder="10"></div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Lore (Culture)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_lore" placeholder="10"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bubble-row">
+                    <label>Tax Rate</label>
+                    <input type="text" id="tax_rate" placeholder="10%">
+                </div>
+
+                <div class="bubble-row">
+                    <label>General Safety Level</label>
+                    <input type="text" id="safety_level" placeholder="Medium">
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">City Infrastructure</h3>
+                    <div class="checklist-item"><input type="checkbox" id="infra_sewers"> Sewer System</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_aqueduct"> Aqueducts / Fresh Water</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_walls"> Stone Fortified Walls</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_teleport"> Teleportation Circle / Magical Hub</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_port"> Active Port / Docks</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_underground"> Extensive Underground (Undercity)</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_paved"> Cobblestone/Paved Roads</div>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Common Services Available</h3>
+                    <div class="checklist-item"><input type="checkbox" id="serv_temples"> Major Temples</div>
+                    <div class="checklist-item"><input type="checkbox" id="serv_colleges"> Arcane Colleges</div>
+                    <div class="checklist-item"><input type="checkbox" id="serv_banks"> Banking Houses</div>
+                    <div class="checklist-item"><input type="checkbox" id="serv_healers"> Clerical Healing Chambers</div>
+                    <div class="checklist-item"><input type="checkbox" id="serv_airship"> Airship / Carriage Docks</div>
+                    <div class="checklist-item"><input type="checkbox" id="serv_bazaars"> Grand Market / Open Bazaars</div>
+                </div>
+            </div>
+
+            <!-- COLUMN 2: Districts, Factions, Economics -->
+            <div class="column">
+                <div class="combat-stats">
+                    <div class="combat-box">
+                        <label>Base Price Limit</label>
+                        <input type="text" id="price_limit" placeholder="25,000 gp">
+                    </div>
+                    <div class="combat-box">
+                        <label>Crimerate Modifier</label>
+                        <input type="text" id="crime_mod" placeholder="-2 (Low)">
+                    </div>
+                    <div class="combat-box">
+                        <label>Guard Staffing</label>
+                        <input type="text" id="guard_staff" placeholder="1,200 active">
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Major Districts</h3>
+                    <table class="attack-table">
+                        <thead>
+                            <tr>
+                                <th>District Name</th>
+                                <th>Atmosphere / Wealth</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" id="district_name1" placeholder="The Castle Ward"></td>
+                                <td><input type="text" id="district_desc1" placeholder="Affluent, administrative"></td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" id="district_name2" placeholder="The Trades Ward"></td>
+                                <td><input type="text" id="district_desc2" placeholder="Bustling, middle-class market"></td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" id="district_name3" placeholder="The Dock Ward"></td>
+                                <td><input type="text" id="district_desc3" placeholder="Impoverished, dangerous, sailors"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <textarea id="district_notes" placeholder="Additional details about other zones or wards..." style="height: 60px; margin-top: 10px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Major Exports &amp; Resources</h3>
+                    <textarea id="exports" placeholder="What does this city trade? (e.g., Wine, Timber, Ironwork, Spell Scrolls...)" style="height: 80px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Imports &amp; Dependencies</h3>
+                    <textarea id="imports" placeholder="What does this city rely on surrounding areas for? (e.g., Grain, Raw Ore, Stone...)" style="height: 80px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Law &amp; Punishment</h3>
+                    <textarea id="law_rules" placeholder="How strict are laws? What are common punishments? (Fines, exile, hard labor...)" style="height: 100px;"></textarea>
+                </div>
+            </div>
+
+            <!-- COLUMN 3: Factions, Rumors, Lore, NPCs -->
+            <div class="column">
+                <div class="box">
+                    <h3 class="box-title">Power Groups &amp; Factions</h3>
+                    <textarea id="factions" placeholder="Guilds, cults, noble houses, or secret societies vying for power..." style="height: 120px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Notable NPCs &amp; Characters</h3>
+                    <textarea id="notable_npcs" placeholder="Key local tavern keeps, guard captains, merchants, or hidden archmages..." style="height: 120px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">City Quirks &amp; Customs</h3>
+                    <textarea id="quirks" placeholder="Unique local festivals, odd taboos, architectural oddities, or regional dialects..." style="height: 100px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Current Rumors &amp; Plots</h3>
+                    <textarea id="rumors" placeholder="What whisperings can adventure groups overhear in the local taverns?" style="height: 100px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">History &amp; Origins</h3>
+                    <textarea id="history" placeholder="Who founded it? What major wars or calamities has the city survived?" style="height: 100px;"></textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="footer">
+        Generated for Dungeon Masters &amp; World Builders. Personal use permitted.
+    </div>
+</div>
+
+<script>
+    // Saves current form elements into a JSON file
+    function saveToJSON() {
+        const form = document.getElementById('citySheet');
+        const data = {};
+
+        const inputs = form.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            if (!input.id) return;
+            
+            if (input.type === 'checkbox') {
+                data[input.id] = input.checked;
+            } else if (input.type === 'number') {
+                data[input.id] = input.value !== "" ? Number(input.value) : null;
+            } else {
+                data[input.id] = input.value;
+            }
+        });
+
+        const jsonString = JSON.stringify(data, null, 4);
+        const cityName = document.getElementById('cityName').value.trim() || 'city_sheet';
+        const filename = `${cityName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Loads a local JSON file back into the form
+    function loadFromJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                const form = document.getElementById('citySheet');
+                
+                // Clear form inputs first
+                form.reset();
+
+                // Populate form fields
+                for (const key in data) {
+                    const input = document.getElementById(key);
+                    if (input) {
+                        if (input.type === 'checkbox') {
+                            input.checked = !!data[key];
+                        } else {
+                            input.value = data[key] !== null ? data[key] : '';
+                        }
+                    }
+                }
+                alert('City sheet loaded successfully!');
+            } catch (err) {
+                alert('Error reading JSON file: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+</script>
+
+</body>
+</html>

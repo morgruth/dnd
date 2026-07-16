@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fort Morgruth: VTT Sovereignty Engine</title>
+    <style>
+        body { margin: 0; background-color: #050005; color: #ff00ff; font-family: 'Courier New', monospace; overflow: hidden; }
+        #vtt-container { display: flex; flex-direction: column; height: 100vh; }
+        canvas { background: #000; cursor: crosshair; flex-grow: 1; }
+        .ui-panel { background: rgba(10, 0, 15, 0.9); border: 2px solid #ff00ff; padding: 10px; position: absolute; top: 10px; left: 10px; z-index: 10; box-shadow: 0 0 15px #ff00ff; }
+        .stats-panel { bottom: 10px; left: 10px; top: auto; width: 250px; }
+        button { background: #ff00ff; color: #000; border: none; padding: 8px; margin: 5px 0; cursor: pointer; font-weight: bold; width: 100%; text-transform: uppercase; }
+        button:hover { background: #fff; }
+        .log { font-size: 0.8em; color: #0f0; max-height: 100px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+
+<div class="ui-panel">
+    <h3>Sovereign VTT</h3>
+    <label>Current Mode:</label>
+    <select id="mode" style="background:#111; color:#fff; width:100%; padding:5px;">
+        <option value="pan">Pan Map</option>
+        <option value="monument">Place Monument (Claim)</option>
+        <option value="token">Deploy Legion Warden</option>
+    </select>
+    <button onclick="enterTheVoid()">Enter The Void (Root Access)</button>
+    <button onclick="resetView()">Return to Briar (0,0)</button>
+    <div id="vttLog" class="log">--- VTT INITIALIZED ---</div>
+</div>
+
+<div class="ui-panel stats-panel">
+    <h4>Domain Status</h4>
+    <div id="coordDisplay">COORD: 0, 0</div>
+    <div id="zoneDisplay">ZONE: Material Plane</div>
+    <hr>
+    <div id="stabilityDisplay">STABILITY: 100%</div>
+</div>
+
+<canvas id="vttCanvas"></canvas>
+
+<script>
+    const canvas = document.getElementById('vttCanvas');
+    const ctx = canvas.getContext('2d');
+    let w, h;
+    let grid = 40;
+    let offX = 0, offY = 0;
+    let isVoid = false;
+    
+    // Domain Data [cite: 241, 360]
+    const claimedZones = [{x: 0, y: 0, radius: 10, name: "Briar Spire-City"}];
+    const buildings = [];
+    const tokens = [{x: 0, y: 0, name: "MORGRUTH", color: "#ff00ff", aura: true}];
+
+    function logVTT(msg) {
+        const log = document.getElementById('vttLog');
+        log.innerHTML = `<div>[${new Date().toLocaleTimeString()}] ${msg}</div>` + log.innerHTML;
+    }
+
+    function resize() {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+    }
+
+    function enterTheVoid() {
+        isVoid = true;
+        offX = -5000000; // Shift to mathematical void [cite: 240, 248]
+        offY = -5000000;
+        logVTT("SYSTEM: Entered The Void. Coordinate shift complete.");
+    }
+
+    function resetView() {
+        isVoid = false;
+        offX = 0;
+        offY = 0;
+        logVTT("SYSTEM: Returned to Material Plane.");
+    }
+
+    function worldToScreen(wx, wy) {
+        return [wx * grid + offX + w/2, wy * grid + offY + h/2];
+    }
+
+    function screenToWorld(sx, sy) {
+        return [Math.floor((sx - offX - w/2) / grid), Math.floor((sy - offY - h/2) / grid)];
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, w, h);
+
+        // 1. Render Background
+        if (isVoid) {
+            ctx.fillStyle = "#050005"; // Deep Void Purple [cite: 240]
+            ctx.fillRect(0, 0, w, h);
+            drawUnclaimedFog();
+        } else {
+            ctx.fillStyle = "#0a0a10";
+            ctx.fillRect(0, 0, w, h);
+        }
+
+        // 2. Draw Grid
+        ctx.strokeStyle = isVoid ? "#330033" : "#222";
+        ctx.beginPath();
+        for (let x = (offX + w/2) % grid; x < w; x += grid) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
+        for (let y = (offY + h/2) % grid; y < h; y += grid) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
+        ctx.stroke();
+
+        // 3. Render Claimed Territory [cite: 241, 242]
+        claimedZones.forEach(zone => {
+            const [sx, sy] = worldToScreen(zone.x, zone.y);
+            ctx.fillStyle = "rgba(100, 0, 255, 0.1)";
+            ctx.beginPath();
+            ctx.arc(sx, sy, zone.radius * grid, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "#ff00ff";
+            ctx.stroke();
+            
+            ctx.fillStyle = "#ff00ff";
+            ctx.fillText(zone.name.toUpperCase(), sx - 50, sy - (zone.radius * grid) - 10);
+        });
+
+        // 4. Render Tokens [cite: 238, 245]
+        tokens.forEach(t => {
+            const [sx, sy] = worldToScreen(t.x, t.y);
+            
+            if (t.aura) { // Pulsing Void Aura [cite: 238, 240]
+                const pulse = Math.sin(Date.now() / 500) * 10 + 20;
+                ctx.shadowBlur = pulse;
+                ctx.shadowColor = t.color;
+                ctx.strokeStyle = t.color;
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(sx + grid/2, sy + grid/2, grid/2.5, 0, Math.PI*2);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+            }
+
+            ctx.fillStyle = t.color;
+            ctx.beginPath();
+            ctx.arc(sx + grid/2, sy + grid/2, grid/3, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#fff";
+            ctx.font = "10px monospace";
+            ctx.fillText(t.name, sx, sy - 5);
+        });
+
+        requestAnimationFrame(draw);
+    }
+
+    function drawUnclaimedFog() {
+        ctx.globalAlpha = 0.2;
+        for (let i = 0; i < 50; i++) { // Random "Void Glints" [cite: 242]
+            ctx.fillStyle = Math.random() > 0.9 ? "#fff" : "#ff00ff";
+            ctx.fillRect(Math.random() * w, Math.random() * h, 2, 2);
+        }
+        ctx.globalAlpha = 1.0;
+    }
+
+    canvas.addEventListener('mousedown', (e) => {
+        const [wx, wy] = screenToWorld(e.clientX, e.clientY);
+        const mode = document.getElementById('mode').value;
+
+        if (mode === "monument") {
+            claimedZones.push({x: wx, y: wy, radius: 5, name: "Sovereign Outpost"});
+            logVTT(`CLAIM: Sector ${wx}, ${wy} anchored to the Spire.`);
+        } else if (mode === "token") {
+            tokens.push({x: wx, y: wy, name: "WARDEN", color: "#ffd700", aura: false});
+            logVTT(`DEPLOY: Legion Warden stationed at ${wx}, ${wy}.`);
+        }
+        
+        document.getElementById('coordDisplay').innerText = `COORD: ${wx}, ${wy}`;
+    });
+
+    window.addEventListener('resize', resize);
+    resize();
+    draw();
+</script>
+
+</body>
+</html>

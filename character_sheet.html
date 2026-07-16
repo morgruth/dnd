@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D 5e Character Sheet</title>
+    <style>
+        :root {
+            --dnd-red: #8b0000;
+            --dnd-dark-red: #5c0000;
+            --border-gray: #b2b2b2;
+            --bg-light: #fdfbf7;
+            --font-main: 'Georgia', serif;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #edebe6;
+            margin: 0;
+            padding: 20px;
+            color: #222;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--bg-light);
+            padding: 25px;
+            border: 2px solid #5d4a36;
+            border-radius: 4px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        /* Menu Bar */
+        .action-bar {
+            background-color: #3e3023;
+            padding: 10px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .btn {
+            font-family: 'Segoe UI', sans-serif;
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+        }
+
+        .btn-save {
+            background-color: #d1a153;
+            color: #1a120b;
+        }
+
+        .btn-save:hover {
+            background-color: #e5b869;
+        }
+
+        .btn-load {
+            background-color: #4a6b82;
+            color: white;
+        }
+
+        .btn-load:hover {
+            background-color: #5c839e;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Header block */
+        header {
+            display: flex;
+            border: 1px solid var(--border-gray);
+            border-radius: 6px;
+            margin-bottom: 25px;
+            background-color: #fff;
+        }
+
+        .char-name-box {
+            flex: 1;
+            padding: 15px;
+            border-right: 1px solid var(--border-gray);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .char-name-box label {
+            font-size: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #777;
+        }
+
+        .char-name-box input {
+            font-family: var(--font-main);
+            font-size: 24px;
+            border: none;
+            border-bottom: 1px solid var(--border-gray);
+            outline: none;
+            background: transparent;
+            width: 95%;
+        }
+
+        .header-details-grid {
+            flex: 2;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            padding: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .detail-item label {
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .detail-item input {
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            padding: 4px 0;
+            font-weight: 500;
+            outline: none;
+        }
+
+        /* Three Column Layout */
+        .sheet-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 900px) {
+            .sheet-body {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Boxes & Sections */
+        .box {
+            background-color: #fff;
+            border: 1px solid var(--border-gray);
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+
+        .box-title {
+            font-family: var(--font-main);
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 4px;
+            margin-top: 0;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+            color: var(--dnd-dark-red);
+        }
+
+        /* Attributes and modifiers */
+        .attributes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .attr-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-gray);
+            border-radius: 8px;
+            background: #fff;
+            padding: 5px 10px;
+        }
+
+        .attr-label {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 70px;
+        }
+
+        .attr-inputs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .attr-inputs input[type="number"] {
+            width: 45px;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 4px;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+        }
+
+        /* Single values (Inspiration, Proficiency) */
+        .bubble-row {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-gray);
+            border-radius: 20px;
+            padding: 5px 15px;
+            margin-bottom: 10px;
+            background: white;
+        }
+
+        .bubble-row label {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            flex: 1;
+        }
+
+        .bubble-row input {
+            width: 45px;
+            text-align: center;
+            border: 1px solid var(--border-gray);
+            border-radius: 50%;
+            height: 30px;
+            font-weight: bold;
+        }
+
+        /* Saves and Skills checklists */
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        .checklist-item input[type="number"] {
+            width: 35px;
+            text-align: center;
+            margin-right: 8px;
+            border: none;
+            border-bottom: 1px solid var(--border-gray);
+            font-size: 12px;
+        }
+
+        /* Column 2 elements */
+        .combat-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .combat-box {
+            border: 1px solid var(--border-gray);
+            border-radius: 6px;
+            background: #fff;
+            text-align: center;
+            padding: 8px;
+        }
+
+        .combat-box label {
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .combat-box input {
+            width: 100%;
+            border: none;
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            box-sizing: border-box;
+            background: transparent;
+        }
+
+        .hp-section {
+            border: 1px solid var(--border-gray);
+            border-radius: 6px;
+            padding: 10px;
+            background: #fff;
+            margin-bottom: 15px;
+        }
+
+        .hp-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .hp-field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hp-field label {
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+
+        .hp-field input {
+            padding: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+        }
+
+        /* Tables for attacks */
+        .attack-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .attack-table th {
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #555;
+            text-align: left;
+            border-bottom: 1px solid var(--border-gray);
+            padding-bottom: 4px;
+        }
+
+        .attack-table td {
+            padding: 4px 0;
+        }
+
+        .attack-table input {
+            width: 95%;
+            border: none;
+            border-bottom: 1px solid #eee;
+            padding: 3px 0;
+            font-size: 12px;
+        }
+
+        /* Textareas */
+        textarea {
+            width: 100%;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 12px;
+            padding: 6px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        /* Currency grid */
+        .currency-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+
+        .coin-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid var(--border-gray);
+            border-radius: 4px;
+            padding: 4px;
+            background: #fafafa;
+        }
+
+        .coin-box label {
+            font-size: 8px;
+            font-weight: bold;
+        }
+
+        .coin-box input {
+            width: 100%;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* Spellcasting area */
+        .spellcasting-header {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .spell-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .spell-level-box {
+            border: 1px solid var(--border-gray);
+            border-radius: 6px;
+            background: #fff;
+            padding: 8px;
+        }
+
+        .spell-level-box h4 {
+            margin: 0 0 6px 0;
+            font-size: 11px;
+            text-transform: uppercase;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 2px;
+            color: var(--dnd-dark-red);
+        }
+
+        .slots-row {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+
+        .slots-row div {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slots-row label {
+            font-size: 8px;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .slots-row input {
+            font-size: 11px;
+            text-align: center;
+            padding: 2px;
+            border: 1px solid var(--border-gray);
+            border-radius: 3px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            border-top: 1px solid var(--border-gray);
+            padding-top: 15px;
+            text-align: center;
+            font-size: 10px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <div class="action-bar">
+        <button class="btn btn-save" onclick="saveToJSON()">Save character to JSON</button>
+        <button class="btn btn-load" onclick="document.getElementById('fileInput').click()">Load from JSON</button>
+        <input type="file" id="fileInput" accept=".json" onchange="loadFromJSON(event)">
+    </div>
+
+    <form id="characterSheet">
+        <header>
+            <div class="char-name-box">
+                <input type="text" id="characterName" placeholder="Character Name">
+                <label>Character Name</label>
+            </div>
+            <div class="header-details-grid">
+                <div class="detail-item">
+                    <input type="text" id="classLevel" placeholder="e.g. Fighter 3">
+                    <label>Class & Level</label>
+                </div>
+                <div class="detail-item">
+                    <input type="text" id="background" placeholder="Acolyte">
+                    <label>Background</label>
+                </div>
+                <div class="detail-item">
+                    <input type="text" id="playerName" placeholder="Your Name">
+                    <label>Player Name</label>
+                </div>
+                <div class="detail-item">
+                    <input type="text" id="race" placeholder="Human">
+                    <label>Race</label>
+                </div>
+                <div class="detail-item">
+                    <input type="text" id="alignment" placeholder="Neutral Good">
+                    <label>Alignment</label>
+                </div>
+                <div class="detail-item">
+                    <input type="number" id="experiencePoints" placeholder="0">
+                    <label>Experience Points</label>
+                </div>
+            </div>
+        </header>
+
+        <div class="sheet-body">
+            
+            <div class="column">
+                <div class="box">
+                    <h3 class="box-title">Attributes</h3>
+                    <div class="attributes-container">
+                        <div class="attr-box">
+                            <span class="attr-label">Strength</span>
+                            <div class="attr-inputs">
+                                <input type="number" id="str" placeholder="10">
+                            </div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Dexterity</span>
+                            <div class="attr-inputs">
+                                <input type="number" id="dex" placeholder="10">
+                            </div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Constitution</span>
+                            <div class="attr-inputs">
+                                <input type="number" id="con" placeholder="10">
+                            </div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Intelligence</span>
+                            <div class="attr-inputs">
+                                <input type="number" id="int" placeholder="10">
+                            </div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Wisdom</span>
+                            <div class="attr-inputs">
+                                <input type="number" id="wis" placeholder="10">
+                            </div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Charisma</span>
+                            <div class="attr-inputs">
+                                <input type="number" id="cha" placeholder="10">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bubble-row">
+                    <label>Inspiration</label>
+                    <input type="text" id="inspiration" placeholder="0">
+                </div>
+
+                <div class="bubble-row">
+                    <label>Proficiency Bonus</label>
+                    <input type="number" id="proficiencyBonus" placeholder="+2">
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Saving Throws</h3>
+                    <div class="checklist-item"><input type="checkbox" id="save_str_prof"><input type="number" id="save_str" placeholder="0"> Strength</div>
+                    <div class="checklist-item"><input type="checkbox" id="save_dex_prof"><input type="number" id="save_dex" placeholder="0"> Dexterity</div>
+                    <div class="checklist-item"><input type="checkbox" id="save_con_prof"><input type="number" id="save_con" placeholder="0"> Constitution</div>
+                    <div class="checklist-item"><input type="checkbox" id="save_int_prof"><input type="number" id="save_int" placeholder="0"> Intelligence</div>
+                    <div class="checklist-item"><input type="checkbox" id="save_wis_prof"><input type="number" id="save_wis" placeholder="0"> Wisdom</div>
+                    <div class="checklist-item"><input type="checkbox" id="save_cha_prof"><input type="number" id="save_cha" placeholder="0"> Charisma</div>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Skills</h3>
+                    <div class="checklist-item"><input type="checkbox" id="skill_acrobatics_prof"><input type="number" id="skill_acrobatics" placeholder="0"> Acrobatics (Dex)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_animal_prof"><input type="number" id="skill_animal" placeholder="0"> Animal Handling (Wis)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_arcana_prof"><input type="number" id="skill_arcana" placeholder="0"> Arcana (Int)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_athletics_prof"><input type="number" id="skill_athletics" placeholder="0"> Athletics (Str)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_deception_prof"><input type="number" id="skill_deception" placeholder="0"> Deception (Cha)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_history_prof"><input type="number" id="skill_history" placeholder="0"> History (Int)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_insight_prof"><input type="number" id="skill_insight" placeholder="0"> Insight (Wis)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_intimidation_prof"><input type="number" id="skill_intimidation" placeholder="0"> Intimidation (Cha)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_investigation_prof"><input type="number" id="skill_investigation" placeholder="0"> Investigation (Int)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_medicine_prof"><input type="number" id="skill_medicine" placeholder="0"> Medicine (Wis)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_nature_prof"><input type="number" id="skill_nature" placeholder="0"> Nature (Int)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_perception_prof"><input type="number" id="skill_perception" placeholder="0"> Perception (Wis)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_performance_prof"><input type="number" id="skill_performance" placeholder="0"> Performance (Cha)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_persuasion_prof"><input type="number" id="skill_persuasion" placeholder="0"> Persuasion (Cha)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_religion_prof"><input type="number" id="skill_religion" placeholder="0"> Religion (Int)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_sleight_prof"><input type="number" id="skill_sleight" placeholder="0"> Sleight of Hand (Dex)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_stealth_prof"><input type="number" id="skill_stealth" placeholder="0"> Stealth (Dex)</div>
+                    <div class="checklist-item"><input type="checkbox" id="skill_survival_prof"><input type="number" id="skill_survival" placeholder="0"> Survival (Wis)</div>
+                </div>
+
+                <div class="bubble-row">
+                    <label>Passive Wisdom (Perception)</label>
+                    <input type="number" id="passivePerception" placeholder="10">
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="combat-stats">
+                    <div class="combat-box">
+                        <label>Armor Class</label>
+                        <input type="number" id="ac" placeholder="10">
+                    </div>
+                    <div class="combat-box">
+                        <label>Initiative</label>
+                        <input type="number" id="initiative" placeholder="0">
+                    </div>
+                    <div class="combat-box">
+                        <label>Speed</label>
+                        <input type="text" id="speed" placeholder="30 ft">
+                    </div>
+                </div>
+
+                <div class="hp-section">
+                    <div class="hp-field" style="margin-bottom: 8px;">
+                        <label>Hit Point Maximum</label>
+                        <input type="number" id="hpMax" placeholder="0">
+                    </div>
+                    <div class="hp-row">
+                        <div class="hp-field">
+                            <label>Current HP</label>
+                            <input type="number" id="hpCurrent" placeholder="0">
+                        </div>
+                        <div class="hp-field">
+                            <label>Temp HP</label>
+                            <input type="number" id="hpTemp" placeholder="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <div style="display: flex; gap: 10px;">
+                        <div class="hp-field" style="flex: 1;">
+                            <label style="font-size: 9px; font-weight: bold; text-transform: uppercase;">Hit Dice</label>
+                            <input type="text" id="hitDice" placeholder="1d10" style="padding: 5px; font-size: 14px; text-align: center; border: 1px solid var(--border-gray); border-radius: 4px;">
+                        </div>
+                        <div style="flex: 1; font-size: 10px;">
+                            <strong style="text-transform: uppercase;">Death Saves</strong>
+                            <div style="margin-top: 3px;">
+                                Suc: <input type="checkbox" id="death_success1"> <input type="checkbox" id="death_success2"> <input type="checkbox" id="death_success3">
+                            </div>
+                            <div style="margin-top: 3px;">
+                                Fail: <input type="checkbox" id="death_fail1"> <input type="checkbox" id="death_fail2"> <input type="checkbox" id="death_fail3">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Attacks & Spellcasting</h3>
+                    <table class="attack-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th style="width: 50px;">Atk Bonus</th>
+                                <th>Damage/Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" id="atk_name1" placeholder="Sword"></td>
+                                <td><input type="text" id="atk_bonus1" placeholder="+5"></td>
+                                <td><input type="text" id="atk_dmg1" placeholder="1d8 S"></td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" id="atk_name2"></td>
+                                <td><input type="text" id="atk_bonus2"></td>
+                                <td><input type="text" id="atk_dmg2"></td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" id="atk_name3"></td>
+                                <td><input type="text" id="atk_bonus3"></td>
+                                <td><input type="text" id="atk_dmg3"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <textarea id="atk_extra" placeholder="Additional attacks, rules, or spell details..." style="height: 70px; margin-top: 8px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Equipment & Currency</h3>
+                    <div class="currency-grid">
+                        <div class="coin-box"><label>CP</label><input type="number" id="cp" placeholder="0"></div>
+                        <div class="coin-box"><label>SP</label><input type="number" id="sp" placeholder="0"></div>
+                        <div class="coin-box"><label>EP</label><input type="number" id="ep" placeholder="0"></div>
+                        <div class="coin-box"><label>GP</label><input type="number" id="gp" placeholder="0"></div>
+                        <div class="coin-box"><label>PP</label><input type="number" id="pp" placeholder="0"></div>
+                    </div>
+                    <textarea id="equipment" placeholder="List all your items and equipment..." style="height: 120px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Treasure</h3>
+                    <textarea id="treasure" placeholder="Gold items, gems, art pieces..." style="height: 60px;"></textarea>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="box">
+                    <h3 class="box-title">Roleplay Aspects</h3>
+                    <div style="margin-bottom: 8px;">
+                        <label style="font-size: 9px; font-weight: bold; text-transform: uppercase; color: #666;">Personality Traits</label>
+                        <textarea id="personality" style="height: 50px;"></textarea>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <label style="font-size: 9px; font-weight: bold; text-transform: uppercase; color: #666;">Ideals</label>
+                        <textarea id="ideals" style="height: 50px;"></textarea>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <label style="font-size: 9px; font-weight: bold; text-transform: uppercase; color: #666;">Bonds</label>
+                        <textarea id="bonds" style="height: 50px;"></textarea>
+                    </div>
+                    <div>
+                        <label style="font-size: 9px; font-weight: bold; text-transform: uppercase; color: #666;">Flaws</label>
+                        <textarea id="flaws" style="height: 50px;"></textarea>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Appearance & Backstory</h3>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 10px;">
+                        <div class="detail-item"><label>Age</label><input type="text" id="age"></div>
+                        <div class="detail-item"><label>Height</label><input type="text" id="height"></div>
+                        <div class="detail-item"><label>Weight</label><input type="text" id="weight"></div>
+                        <div class="detail-item"><label>Eyes</label><input type="text" id="eyes"></div>
+                        <div class="detail-item"><label>Skin</label><input type="text" id="skin"></div>
+                        <div class="detail-item"><label>Hair</label><input type="text" id="hair"></div>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <label style="font-size: 9px; font-weight: bold; text-transform: uppercase; color: #666;">Character Appearance</label>
+                        <textarea id="appearance" style="height: 60px;"></textarea>
+                    </div>
+                    <div>
+                        <label style="font-size: 9px; font-weight: bold; text-transform: uppercase; color: #666;">Character Backstory</label>
+                        <textarea id="backstory" style="height: 100px;"></textarea>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Allies & Organizations</h3>
+                    <input type="text" id="alliance_name" placeholder="Faction / Guild Name" style="width: 100%; padding: 5px; box-sizing: border-box; border: 1px solid var(--border-gray); border-radius: 4px; margin-bottom: 8px;">
+                    <textarea id="allies" placeholder="Description, Allies, and Symbols..." style="height: 80px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Features & Traits</h3>
+                    <textarea id="features" style="height: 120px;" placeholder="Feats, Class Features, and Traits..."></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Other Proficiencies & Languages</h3>
+                    <textarea id="other_proficiencies" style="height: 80px;" placeholder="Languages, tool proficiencies, armor/weapon training..."></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="box" style="margin-top: 15px;">
+            <h3 class="box-title" style="font-size: 16px;">Spellcasting</h3>
+            <div class="spellcasting-header">
+                <div class="detail-item">
+                    <input type="text" id="spell_class" placeholder="Wizard">
+                    <label>Spellcasting Class</label>
+                </div>
+                <div class="detail-item">
+                    <input type="text" id="spell_ability" placeholder="INT">
+                    <label>Spellcasting Ability</label>
+                </div>
+                <div class="detail-item">
+                    <input type="number" id="spell_save_dc" placeholder="13">
+                    <label>Spell Save DC</label>
+                </div>
+                <div class="detail-item">
+                    <input type="number" id="spell_attack_bonus" placeholder="+5">
+                    <label>Spell Attack Bonus</label>
+                </div>
+            </div>
+
+            <div class="spell-grid">
+                <div class="spell-level-box">
+                    <h4>Cantrips (0)</h4>
+                    <textarea id="cantrips" placeholder="Cantrips known..." style="height: 100px;"></textarea>
+                </div>
+
+                <script>
+                    for (let i = 1; i <= 9; i++) {
+                        document.write(`
+                            <div class="spell-level-box">
+                                <h4>Level ${i}</h4>
+                                <div class="slots-row">
+                                    <div>
+                                        <label>Total</label>
+                                        <input type="number" id="spell_slots_total_${i}">
+                                    </div>
+                                    <div>
+                                        <label>Spent</label>
+                                        <input type="number" id="spell_slots_expended_${i}">
+                                    </div>
+                                </div>
+                                <textarea id="spells_lvl_${i}" placeholder="Spells..." style="height: 60px; margin-top: 5px;"></textarea>
+                            </div>
+                        `);
+                    }
+                </script>
+            </div>
+        </div>
+    </form>
+
+    <div class="footer">
+        TM & © 2014 Wizards of the Coast LLC. Permission is granted to photocopy this document for personal use.
+    </div>
+</div>
+
+<script>
+    // Saves current form elements into a JSON file
+    function saveToJSON() {
+        const form = document.getElementById('characterSheet');
+        const data = {};
+
+        const inputs = form.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            if (!input.id) return;
+            
+            if (input.type === 'checkbox') {
+                data[input.id] = input.checked;
+            } else if (input.type === 'number') {
+                data[input.id] = input.value !== "" ? Number(input.value) : null;
+            } else {
+                data[input.id] = input.value;
+            }
+        });
+
+        const jsonString = JSON.stringify(data, null, 4);
+        const charName = document.getElementById('characterName').value.trim() || 'character_sheet';
+        const filename = `${charName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Loads a local JSON file back into the character sheet form
+    function loadFromJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                const form = document.getElementById('characterSheet');
+                
+                // Clear form inputs first
+                form.reset();
+
+                // Populate form fields
+                for (const key in data) {
+                    const input = document.getElementById(key);
+                    if (input) {
+                        if (input.type === 'checkbox') {
+                            input.checked = !!data[key];
+                        } else {
+                            input.value = data[key] !== null ? data[key] : '';
+                        }
+                    }
+                }
+                alert('Character sheet loaded successfully!');
+            } catch (err) {
+                alert('Error reading JSON file: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+</script>
+
+</body>
+</html>
