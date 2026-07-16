@@ -1,0 +1,81 @@
+{
+    "metadata": {
+        "version": "7.0",
+        "timestamp": "2026-07-16T17:27:17.517Z"
+    },
+    "formFields": {
+        "cityName": "Briar",
+        "rulerLeader": "Archon Overseer",
+        "region": "Aetherial Borderlands",
+        "settlementType": "Industrial Fortified Citadel",
+        "demographics": "40% Human, 30% Construct, 30% Elf",
+        "alignment": "Lawful Neutral (Programmed)",
+        "population": "45,000 active hulls",
+        "statStr": 17,
+        "bankGp": 134.6,
+        "bankAc": 2700,
+        "attr_defense": 14,
+        "attr_wealth": 15,
+        "attr_magic": 16,
+        "attr_industry": 18,
+        "attr_order": 12,
+        "attr_lore": 10,
+        "tax_rate": "12.5%",
+        "safety_level": "94.2%",
+        "infra_sewers": true,
+        "infra_aqueduct": true,
+        "infra_walls": true,
+        "infra_teleport": true,
+        "infra_port": false,
+        "infra_underground": true,
+        "infra_paved": true,
+        "price_limit": "50,000 gp",
+        "crime_mod": "-3 (Suppressed)",
+        "guard_staff": "2,400 units active",
+        "district_name1": "The Nexus Core",
+        "district_desc1": "Administrative high-resonance hub",
+        "district_name2": "The Iron Kilns",
+        "district_desc2": "Automated heavy production furnaces",
+        "district_name3": "The Sinks",
+        "district_desc3": "Lower logistics sector and crew docks",
+        "district_notes": "",
+        "exports": "Aether Engines, Refined Shadow-Iron, Runed Focus Plates, Mana Crystals",
+        "imports": "Raw Obsidian, Shadow-Oak Timber, Alchemical Solvents, Organic Rations",
+        "resIron": 632.2,
+        "resWood": 2624.8,
+        "resObsidian": 473.4,
+        "resGrain": 5000,
+        "resProduce": 5,
+        "resCrystals": 51.8,
+        "resEssence": 27.03,
+        "factions": "The Mechanists Guild, Archon Core Sentinels, Cult of the Fractured Star",
+        "notable_npcs": "Logistics Unit X-77, Grand Artificer Vane, Silas the Whispering Alchemist",
+        "quirks": "Aether storms cycle every 14 hours; mechanical limbs are seen as high fashion.",
+        "rumors": "A rogue construct has been speaking prophecies in the lower market sector.",
+        "history": "Founded on the wreckage of Plane-Shift Tower III during the Great Calamity."
+    },
+    "dynamicElements": {
+        "registryItems": [
+            {
+                "name": "Void-Forged Lens",
+                "label": "Attuned",
+                "weight": 4.5
+            },
+            {
+                "name": "Resonator Core",
+                "label": "Experimental",
+                "weight": 12
+            }
+        ],
+        "installedModules": [
+            {
+                "name": "Shadow-Iron Smelter",
+                "inputId": "resWood",
+                "inputQty": 10,
+                "outputId": "resIron",
+                "outputQty": 5
+            }
+        ],
+        "customResources": []
+    }
+}

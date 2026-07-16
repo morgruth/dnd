@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sovereign OS v7.0: Arcane Industrial Hub</title>
+    <style>
+        :root {
+            --neon-pink: #ff00ff;
+            --neon-blue: #00ffff;
+            --neon-green: #00ff00;
+            --bg-dark: #09030e;
+            --panel-bg: rgba(22, 10, 32, 0.85);
+            --border-purple: #5c005c;
+            --border-glow: #b300b3;
+            --text-main: #e0d0f0;
+            --font-mono: 'Courier New', Courier, monospace;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: var(--panel-bg);
+            padding: 25px;
+            border: 2px solid var(--border-purple);
+            border-radius: 8px;
+            box-shadow: 0 0 25px rgba(255, 0, 255, 0.25);
+        }
+
+        /* Top Bar */
+        .action-bar {
+            background-color: #1a0826;
+            padding: 12px 20px;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-purple);
+            border-radius: 6px;
+            display: flex;
+            gap: 12px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .os-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 8px var(--neon-pink);
+            margin: 0;
+            text-transform: uppercase;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            font-family: var(--font-mono);
+            font-weight: bold;
+            text-transform: uppercase;
+            padding: 8px 16px;
+            border: 1px solid var(--neon-pink);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 11px;
+            background: transparent;
+            color: var(--neon-pink);
+        }
+
+        .btn:hover {
+            background-color: var(--neon-pink);
+            color: #000;
+            box-shadow: 0 0 12px var(--neon-pink);
+        }
+
+        .btn-blue {
+            border-color: var(--neon-blue);
+            color: var(--neon-blue);
+        }
+
+        .btn-blue:hover {
+            background-color: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 12px var(--neon-blue);
+        }
+
+        .btn-green {
+            border-color: var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .btn-green:hover {
+            background-color: var(--neon-green);
+            color: #000;
+            box-shadow: 0 0 12px var(--neon-green);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        /* Grid Header */
+        header {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            border: 1px solid var(--border-purple);
+            border-radius: 6px;
+            margin-bottom: 25px;
+            background-color: rgba(10, 2, 18, 0.9);
+            box-shadow: inset 0 0 15px rgba(255, 0, 255, 0.1);
+        }
+
+        .city-name-box {
+            padding: 20px;
+            border-right: 1px solid var(--border-purple);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .city-name-box label {
+            font-size: 9px;
+            text-transform: uppercase;
+            font-weight: bold;
+            color: #8a7b9c;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .city-name-box input {
+            font-size: 24px;
+            border: none;
+            border-bottom: 1px solid var(--border-purple);
+            outline: none;
+            background: transparent;
+            color: #fff;
+            text-shadow: 0 0 8px var(--neon-pink);
+            width: 95%;
+            font-family: var(--font-mono);
+        }
+
+        .header-details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid rgba(255, 0, 255, 0.2);
+        }
+
+        .detail-item label {
+            font-size: 9px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #8a7b9c;
+            margin-bottom: 2px;
+        }
+
+        .detail-item input {
+            border: none;
+            background: transparent;
+            font-size: 13px;
+            padding: 4px 0;
+            outline: none;
+            color: var(--neon-blue);
+            font-family: var(--font-mono);
+        }
+
+        /* Multi-Column Layout */
+        .sheet-body {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.2fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .sheet-body {
+                grid-template-columns: 1fr;
+            }
+            header {
+                grid-template-columns: 1fr;
+            }
+            .city-name-box {
+                border-right: none;
+                border-bottom: 1px solid var(--border-purple);
+            }
+        }
+
+        /* Sector Boxes */
+        .box {
+            background-color: rgba(15, 5, 25, 0.9);
+            border: 1px solid var(--border-purple);
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .box-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid var(--border-purple);
+            padding-bottom: 6px;
+            margin-top: 0;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            color: #fff;
+            text-shadow: 0 0 5px var(--neon-pink);
+        }
+
+        /* Attributes and sliders */
+        .attributes-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .attr-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(255, 0, 255, 0.2);
+            border-radius: 6px;
+            background: rgba(30, 10, 45, 0.4);
+            padding: 6px 12px;
+        }
+
+        .attr-label {
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            width: 160px;
+            color: #bbb;
+        }
+
+        .attr-inputs {
+            display: flex;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .attr-inputs input[type="number"] {
+            width: 50px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            padding: 4px;
+            border: 1px solid var(--border-purple);
+            border-radius: 4px;
+            background: #150522;
+            color: var(--neon-green);
+        }
+
+        /* Row Formats */
+        .bubble-row {
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border-purple);
+            border-radius: 20px;
+            padding: 6px 18px;
+            margin-bottom: 15px;
+            background: rgba(20, 5, 30, 0.8);
+        }
+
+        .bubble-row label {
+            font-size: 11px;
+            font-weight: bold;
+            text-transform: uppercase;
+            flex: 1;
+            color: #aaa;
+        }
+
+        .bubble-row input {
+            width: 100px;
+            text-align: center;
+            border: 1px solid var(--border-purple);
+            border-radius: 10px;
+            height: 25px;
+            font-weight: bold;
+            background: #10021a;
+            color: var(--neon-blue);
+            font-family: var(--font-mono);
+        }
+
+        /* Checklists */
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 11px;
+            color: #ccc;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            margin-right: 10px;
+            accent-color: var(--neon-pink);
+            cursor: pointer;
+        }
+
+        /* Statistics Layout */
+        .combat-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .combat-box {
+            border: 1px solid var(--border-purple);
+            border-radius: 6px;
+            background: rgba(20, 5, 30, 0.8);
+            text-align: center;
+            padding: 8px;
+        }
+
+        .combat-box label {
+            font-size: 8px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 6px;
+            color: #8a7b9c;
+        }
+
+        .combat-box input {
+            width: 100%;
+            border: none;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            box-sizing: border-box;
+            background: transparent;
+            color: var(--neon-blue);
+            font-family: var(--font-mono);
+        }
+
+        /* Textareas */
+        textarea {
+            width: 100%;
+            border: 1px solid var(--border-purple);
+            border-radius: 4px;
+            background-color: #10021a;
+            color: var(--text-main);
+            font-family: var(--font-mono);
+            font-size: 11px;
+            padding: 8px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        /* Grid Table Input */
+        .attack-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .attack-table th {
+            font-size: 9px;
+            text-transform: uppercase;
+            color: #8a7b9c;
+            text-align: left;
+            border-bottom: 1px solid var(--border-purple);
+            padding-bottom: 4px;
+        }
+
+        .attack-table td {
+            padding: 4px 0;
+        }
+
+        .attack-table input {
+            width: 95%;
+            border: none;
+            border-bottom: 1px solid rgba(255, 0, 255, 0.2);
+            padding: 4px 0;
+            font-size: 11px;
+            background: transparent;
+            color: #fff;
+            font-family: var(--font-mono);
+        }
+
+        /* Real-Time Terminal Log */
+        #log {
+            background: #000;
+            border: 1px solid var(--border-purple);
+            height: 140px;
+            overflow-y: auto;
+            padding: 10px;
+            font-size: 0.8em;
+            color: var(--neon-green);
+            margin-top: 15px;
+            border-radius: 4px;
+            box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.15);
+        }
+
+        /* Item Vault and List Registries */
+        .item-list {
+            list-style: none;
+            padding: 0;
+            max-height: 140px;
+            overflow-y: auto;
+            border-top: 1px solid var(--border-purple);
+            margin-top: 5px;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px;
+            border-bottom: 1px solid rgba(255, 0, 255, 0.1);
+            font-size: 0.8em;
+            align-items: center;
+        }
+
+        .label-tag {
+            background: #3a003a;
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--neon-blue);
+            font-size: 0.75em;
+            border: 1px solid var(--neon-pink);
+        }
+
+        /* Resource Stockpile Grid */
+        .res-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .res-item {
+            background: rgba(20, 5, 30, 0.7);
+            border: 1px solid rgba(255, 0, 255, 0.15);
+            padding: 6px;
+            border-radius: 4px;
+        }
+
+        .res-item label {
+            font-size: 8px;
+            color: #8a7b9c;
+            text-transform: uppercase;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .res-item input {
+            width: 100%;
+            background: #10021a;
+            border: 1px solid var(--border-purple);
+            color: var(--neon-green);
+            padding: 4px;
+            box-sizing: border-box;
+            font-size: 11px;
+            font-family: var(--font-mono);
+        }
+
+        .status-box {
+            text-align: center;
+            font-size: 1.1em;
+            font-weight: bold;
+            padding: 10px;
+            border: 2px dashed var(--neon-pink);
+            margin: 15px 0;
+            background: rgba(30, 5, 40, 0.8);
+            border-radius: 6px;
+        }
+
+        .module-tag {
+            color: var(--neon-blue);
+            font-weight: bold;
+        }
+
+        .footer {
+            margin-top: 30px;
+            border-top: 1px solid var(--border-purple);
+            padding-top: 15px;
+            text-align: center;
+            font-size: 9px;
+            color: #8a7b9c;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    
+    <!-- Top Bar Controls -->
+    <div class="action-bar">
+        <h2 class="os-title" id="mainHeader">Sovereign OS v7.0: Arcane Hub</h2>
+        <div class="btn-group">
+            <button class="btn btn-save" onclick="saveToJSON()">Save OS State</button>
+            <button class="btn btn-load" onclick="document.getElementById('fileInput').click()">Load OS State</button>
+            <input type="file" id="fileInput" accept=".json" onchange="loadFromJSON(event)">
+        </div>
+    </div>
+
+    <form id="citySheet" onsubmit="event.preventDefault();">
+        <!-- Core Hub Coordinates (Header Block) -->
+        <header>
+            <div class="city-name-box">
+                <label>Domain / Settlement Name</label>
+                <input type="text" id="cityName" value="Briar" onchange="updateCityName()">
+            </div>
+            <div class="header-details-grid">
+                <div class="detail-item">
+                    <label>Sovereign Leadership</label>
+                    <input type="text" id="rulerLeader" value="Archon Overseer">
+                </div>
+                <div class="detail-item">
+                    <label>Region / Plane</label>
+                    <input type="text" id="region" value="Aetherial Borderlands">
+                </div>
+                <div class="detail-item">
+                    <label>Settlement Class & Size</label>
+                    <input type="text" id="settlementType" value="Industrial Fortified Citadel">
+                </div>
+                <div class="detail-item">
+                    <label>Demographics</label>
+                    <input type="text" id="demographics" value="40% Human, 30% Construct, 30% Elf">
+                </div>
+                <div class="detail-item">
+                    <label>Dominant Alignment</label>
+                    <input type="text" id="alignment" value="Lawful Neutral (Programmed)">
+                </div>
+                <div class="detail-item">
+                    <label>Operational Population</label>
+                    <input type="text" id="population" value="45,000 active hulls">
+                </div>
+            </div>
+        </header>
+
+        <div class="sheet-body">
+            
+            <!-- COLUMN 1: System Ledger, Credentials, Attributes -->
+            <div class="column">
+                <div class="box">
+                    <h3 class="box-title">Sovereign Ledger</h3>
+                    
+                    <label style="font-size: 8px; color: #8a7b9c; text-transform: uppercase;">Logistics Anchor Strength (STR)</label>
+                    <input type="number" id="statStr" value="17" onchange="calculateLogistics()" style="background: #1a002a; border: 1px solid var(--border-purple); color: var(--neon-green); width: 100%; padding: 6px; box-sizing: border-box; margin-bottom: 10px; font-weight: bold;">
+
+                    <label style="font-size: 8px; color: #8a7b9c; text-transform: uppercase;">Liquid Gold reserves (GP)</label>
+                    <input type="number" id="bankGp" value="11134.60" step="0.01" onchange="calculateLogistics()" style="background: #1a002a; border: 1px solid var(--border-purple); color: var(--neon-blue); width: 100%; padding: 6px; box-sizing: border-box; margin-bottom: 10px; font-weight: bold;">
+
+                    <label style="font-size: 8px; color: #8a7b9c; text-transform: uppercase;">Planar Credits (AC)</label>
+                    <input type="number" id="bankAc" value="1600" style="background: #1a002a; border: 1px solid var(--border-purple); color: var(--neon-pink); width: 100%; padding: 6px; box-sizing: border-box; margin-bottom: 10px; font-weight: bold;">
+
+                    <div style="display: flex; gap: 8px; margin-top: 5px;">
+                        <button class="btn btn-blue" onclick="planarExchange()" style="flex: 1; padding: 6px; font-size: 8px;">Exchange Gold (1000 GP : 100 AC)</button>
+                        <button class="btn btn-green" onclick="runProductionCycle()" style="flex: 1; padding: 6px; font-size: 8px;">Run Production</button>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Domain Attributes (1-20)</h3>
+                    <div class="attributes-container">
+                        <div class="attr-box">
+                            <span class="attr-label">Defense (Military)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_defense" value="14"></div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Wealth (Trade Grid)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_wealth" value="15"></div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Magic (Resonance)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_magic" value="16"></div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Industry (Forge-Labor)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_industry" value="18"></div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Order (Regulatory Law)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_order" value="12"></div>
+                        </div>
+                        <div class="attr-box">
+                            <span class="attr-label">Lore (Core Archive)</span>
+                            <div class="attr-inputs"><input type="number" id="attr_lore" value="10"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bubble-row">
+                    <label>Tax Duty Rate</label>
+                    <input type="text" id="tax_rate" value="12.5%">
+                </div>
+
+                <div class="bubble-row">
+                    <label>Stability Rating</label>
+                    <input type="text" id="safety_level" value="94.2%">
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Infrastructure Matrix</h3>
+                    <div class="checklist-item"><input type="checkbox" id="infra_sewers" checked> Sewer System Filters</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_aqueduct" checked> Aether-Water Conduits</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_walls" checked> Heavy Force Field Walls</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_teleport" checked> Teleportation Grid Gate</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_port"> Active Skyport / Docks</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_underground" checked> Sub-Level Undercity</div>
+                    <div class="checklist-item"><input type="checkbox" id="infra_paved" checked> Mag-Lev Transit Tracks</div>
+                </div>
+            </div>
+
+            <!-- COLUMN 2: Inventory Vault, Districts, & Logistics Status -->
+            <div class="column">
+                <div class="combat-stats">
+                    <div class="combat-box">
+                        <label>Price Cap</label>
+                        <input type="text" id="price_limit" value="50,000 gp">
+                    </div>
+                    <div class="combat-box">
+                        <label>Threat Level</label>
+                        <input type="text" id="crime_mod" value="-3 (Suppressed)">
+                    </div>
+                    <div class="combat-box">
+                        <label>Sentinels</label>
+                        <input type="text" id="guard_staff" value="2,400 units active">
+                    </div>
+                </div>
+
+                <!-- Carry Capacity Status Box -->
+                <div class="status-box" id="capacityStatus">
+                    Vault Loadout: Calculating...
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Vault Artifact Registry</h3>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <input type="text" id="newItemName" placeholder="Artifact Name" style="width: 50%; font-size: 11px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                        <input type="text" id="newItemLabel" placeholder="Attribute/Tag" style="width: 50%; font-size: 11px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                        <label style="font-size: 8px; text-transform: uppercase;">Weight (lbs):</label>
+                        <input type="number" id="newItemWeight" value="1" style="width: 60px; font-size: 11px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                        <button class="btn btn-blue" onclick="addItem()" style="flex: 1; padding: 4px; font-size: 9px; margin-top: 0;">Add Vault Entry</button>
+                    </div>
+                    
+                    <ul id="itemList" class="item-list">
+                        <!-- Dynamic items load here -->
+                    </ul>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Major Sectors & Wards</h3>
+                    <table class="attack-table">
+                        <thead>
+                            <tr>
+                                <th>Ward Designation</th>
+                                <th>Operational Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" id="district_name1" value="The Nexus Core"></td>
+                                <td><input type="text" id="district_desc1" value="Administrative high-resonance hub"></td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" id="district_name2" value="The Iron Kilns"></td>
+                                <td><input type="text" id="district_desc2" value="Automated heavy production furnaces"></td>
+                            </tr>
+                            <tr>
+                                <td><input type="text" id="district_name3" value="The Sinks"></td>
+                                <td><input type="text" id="district_desc3" value="Lower logistics sector and crew docks"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <textarea id="district_notes" placeholder="Secondary grid zones or auxiliary outposts..." style="height: 50px; margin-top: 8px;"></textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Primary Exports</h3>
+                    <textarea id="exports" style="height: 50px;">Aether Engines, Refined Shadow-Iron, Runed Focus Plates, Mana Crystals</textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Necessary Dependencies</h3>
+                    <textarea id="imports" style="height: 50px;">Raw Obsidian, Shadow-Oak Timber, Alchemical Solvents, Organic Rations</textarea>
+                </div>
+            </div>
+
+            <!-- COLUMN 3: Factions, Resources, & Production Modules -->
+            <div class="column">
+                <div class="box">
+                    <h3 class="box-title">Strategic Resource Manifest</h3>
+                    
+                    <!-- Dynamic Resource Registration -->
+                    <div style="border: 1px dashed rgba(255, 0, 255, 0.4); padding: 8px; margin-bottom: 12px; background: rgba(20, 5, 30, 0.5); border-radius: 4px;">
+                        <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                            <input type="text" id="newResName" placeholder="Res Name (e.g. Mithril)" style="width: 45%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                            <input type="number" id="newResWeight" placeholder="Wt (lbs)" value="1" style="width: 25%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                            <input type="number" id="newResQty" placeholder="Qty" value="0" style="width: 30%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                        </div>
+                        <button class="btn btn-blue" onclick="registerNewResource()" style="padding: 4px; font-size: 8px; width: 100%; margin: 0;">Register Strategic Resource</button>
+                    </div>
+
+                    <!-- Global Grid Stockpiles -->
+                    <div class="res-grid" id="manifestGrid">
+                        <div class="res-item"><label>Shadow-Iron</label><input type="number" id="resIron" class="res" data-weight="10" value="487.2" onchange="calculateLogistics()"></div>
+                        <div class="res-item"><label>Shadow-Oak</label><input type="number" id="resWood" class="res" data-weight="2" value="2914.8" onchange="calculateLogistics()"></div>
+                        <div class="res-item"><label>Obsidian</label><input type="number" id="resObsidian" class="res" data-weight="5" value="473.4" onchange="calculateLogistics()"></div>
+                        <div class="res-item"><label>Aether-Grain</label><input type="number" id="resGrain" class="res" data-weight="1" value="5000" onchange="calculateLogistics()"></div>
+                        <div class="res-item"><label>Raw Produce</label><input type="number" id="resProduce" class="res" data-weight="1" value="5" onchange="calculateLogistics()"></div>
+                        <div class="res-item"><label>Aether Crystals</label><input type="number" id="resCrystals" class="res" data-weight="1" value="51.8" onchange="calculateLogistics()"></div>
+                        <div class="res-item"><label>Static Essence</label><input type="number" id="resEssence" class="res" data-weight="0" value="27.03" onchange="calculateLogistics()"></div>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Dynamic Production Modules</h3>
+                    <div style="margin-bottom: 8px;">
+                        <input type="text" id="modName" placeholder="New Module (e.g. Iron Siphon)" style="width: 100%; font-size: 11px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff; margin-bottom: 6px; box-sizing: border-box; padding: 4px;">
+                        <div style="display: flex; gap: 6px;">
+                            <div style="width: 50%;">
+                                <label style="font-size: 8px; text-transform: uppercase;">Input (Burn)</label>
+                                <select id="modInputRes" style="width: 100%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: var(--neon-blue); padding: 4px;">
+                                    <option value="resWood">Shadow-Oak</option>
+                                    <option value="resGrain">Aether-Grain</option>
+                                    <option value="bankGp">Liquid Gold (GP)</option>
+                                    <option value="resIron">Shadow-Iron</option>
+                                    <option value="resCrystals">Aether Crystals</option>
+                                    <option value="resObsidian">Obsidian</option>
+                                    <option value="resEssence">Static Essence</option>
+                                </select>
+                                <input type="number" id="modInputQty" value="2" style="width: 100%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff; margin-top: 4px; box-sizing: border-box; padding: 2px;">
+                            </div>
+                            <div style="width: 50%;">
+                                <label style="font-size: 8px; text-transform: uppercase;">Output (Yield)</label>
+                                <select id="modOutputRes" style="width: 100%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: var(--neon-pink); padding: 4px;">
+                                    <option value="resIron">Shadow-Iron</option>
+                                    <option value="resCrystals">Aether Crystals</option>
+                                    <option value="bankGp">Liquid Gold (GP)</option>
+                                    <option value="resWood">Shadow-Oak</option>
+                                    <option value="resGrain">Aether-Grain</option>
+                                    <option value="resObsidian">Obsidian</option>
+                                    <option value="resEssence">Static Essence</option>
+                                </select>
+                                <input type="number" id="modOutputQty" value="5" style="width: 100%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff; margin-top: 4px; box-sizing: border-box; padding: 2px;">
+                            </div>
+                        </div>
+                        <button class="btn btn-green" onclick="addModule()" style="padding: 6px; font-size: 9px; width: 100%; margin-top: 8px;">Install Sub-Module</button>
+                    </div>
+
+                    <ul id="moduleList" class="item-list">
+                        <!-- Dynamic industrial engines run here -->
+                    </ul>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">System Log Terminal</h3>
+                    <div id="log">--- Terminal Initiated ---</div>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Power Structures & Factions</h3>
+                    <textarea id="factions" placeholder="Secret cabals, guilds, or noble houses..." style="height: 60px;">The Mechanists Guild, Archon Core Sentinels, Cult of the Fractured Star</textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Local Outliers (NPCs)</h3>
+                    <textarea id="notable_npcs" placeholder="Key high mages, network administrators, barkeeps..." style="height: 60px;">Logistics Unit X-77, Grand Artificer Vane, Silas the Whispering Alchemist</textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Anomalies & Customs</h3>
+                    <textarea id="quirks" placeholder="Weird regional phenomena, odd taboos..." style="height: 50px;">Aether storms cycle every 14 hours; mechanical limbs are seen as high fashion.</textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Current Signal Feeds (Rumors)</h3>
+                    <textarea id="rumors" placeholder="What whisperings circulate the terminals?" style="height: 50px;">A rogue construct has been speaking prophecies in the lower market sector.</textarea>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Chronicles & Origin Logs</h3>
+                    <textarea id="history" placeholder="Who established this domain? How long has it stood?" style="height: 50px;">Founded on the wreckage of Plane-Shift Tower III during the Great Calamity.</textarea>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <div class="footer">
+        Sovereign Forge Systems — Security Engine Approved. Personal and Administrative Use Permitted.
+    </div>
+</div>
+
+<script>
+    // System Variables
+    let registryItems = [
+        { name: "Void-Forged Lens", label: "Attuned", weight: 4.5 },
+        { name: "Resonator Core", label: "Experimental", weight: 12.0 }
+    ];
+
+    let installedModules = [
+        { name: "Shadow-Iron Smelter", inputId: "resWood", inputQty: 10, outputId: "resIron", outputQty: 5 }
+    ];
+
+    // Logging helper
+    function logToTerminal(message) {
+        const logBox = document.getElementById("log");
+        const timestamp = new Date().toLocaleTimeString();
+        logBox.innerHTML += `<br>[${timestamp}] ${message}`;
+        logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    // Dynamic Title Updating
+    function updateCityName() {
+        const name = document.getElementById('cityName').value.trim() || 'Briar';
+        document.getElementById('mainHeader').innerText = `Sovereign OS: ${name} Industrial Hub`;
+        logToTerminal(`Domain Registry updated: Name set to ${name}`);
+    }
+
+    // Dynamic Item Vault Management
+    function renderItems() {
+        const list = document.getElementById("itemList");
+        list.innerHTML = "";
+        registryItems.forEach((item, index) => {
+            const row = document.createElement("li");
+            row.className = "item-row";
+            row.innerHTML = `
+                <span>${item.name} <span class="label-tag">${item.label}</span></span>
+                <span style="color: #999;">${item.weight} lbs 
+                <button type="button" onclick="removeItem(${index})" style="background: transparent; border: none; color: var(--neon-pink); cursor: pointer; margin-left: 10px; font-weight: bold;">[X]</button></span>
+            `;
+            list.appendChild(row);
+        });
+        calculateLogistics();
+    }
+
+    function addItem() {
+        const name = document.getElementById("newItemName").value.trim();
+        const label = document.getElementById("newItemLabel").value.trim() || "Registered";
+        const weight = parseFloat(document.getElementById("newItemWeight").value) || 0;
+
+        if (!name) {
+            alert("Artifact Name is required.");
+            return;
+        }
+
+        registryItems.push({ name, label, weight });
+        logToTerminal(`Registered Artifact: "${name}" (${weight} lbs) under tag [${label}]`);
+        document.getElementById("newItemName").value = "";
+        document.getElementById("newItemLabel").value = "";
+        document.getElementById("newItemWeight").value = "1";
+        renderItems();
+    }
+
+    function removeItem(index) {
+        const removed = registryItems.splice(index, 1);
+        logToTerminal(`Purged from vault: "${removed[0].name}"`);
+        renderItems();
+    }
+
+    // Custom Industrial Sub-Modules
+    function renderModules() {
+        const list = document.getElementById("moduleList");
+        list.innerHTML = "";
+        installedModules.forEach((mod, index) => {
+            const row = document.createElement("li");
+            row.className = "item-row";
+            row.innerHTML = `
+                <span><span class="module-tag">${mod.name}</span> (${mod.inputQty} ${getLabelForId(mod.inputId)} ➔ ${mod.outputQty} ${getLabelForId(mod.outputId)})</span>
+                <button type="button" onclick="removeModule(${index})" style="background: transparent; border: none; color: var(--neon-pink); cursor: pointer; font-weight: bold;">[X]</button>
+            `;
+            list.appendChild(row);
+        });
+    }
+
+    function getLabelForId(id) {
+        if (id === 'bankGp') return 'GP';
+        const el = document.getElementById(id);
+        if (el && el.previousElementSibling) {
+            return el.previousElementSibling.innerText;
+        }
+        return id;
+    }
+
+    function addModule() {
+        const name = document.getElementById("modName").value.trim();
+        const inputId = document.getElementById("modInputRes").value;
+        const inputQty = parseFloat(document.getElementById("modInputQty").value) || 0;
+        const outputId = document.getElementById("modOutputRes").value;
+        const outputQty = parseFloat(document.getElementById("modOutputQty").value) || 0;
+
+        if (!name) {
+            alert("Module Name is required.");
+            return;
+        }
+
+        installedModules.push({ name, inputId, inputQty, outputId, outputQty });
+        logToTerminal(`Installed Core Sub-Module: "${name}"`);
+        document.getElementById("modName").value = "";
+        renderModules();
+    }
+
+    function removeModule(index) {
+        const removed = installedModules.splice(index, 1);
+        logToTerminal(`Deinstalled Industrial Module: "${removed[0].name}"`);
+        renderModules();
+    }
+
+    // Dynamic Resource Manifest registration
+    let customResourceCount = 0;
+    function registerNewResource() {
+        const name = document.getElementById("newResName").value.trim();
+        const weight = parseFloat(document.getElementById("newResWeight").value) || 0;
+        const initialQty = parseFloat(document.getElementById("newResQty").value) || 0;
+
+        if (!name) {
+            alert("Resource Name is required.");
+            return;
+        }
+
+        customResourceCount++;
+        const customId = `custom_res_${customResourceCount}`;
+
+        // Add to global stockpiles grid
+        const grid = document.getElementById("manifestGrid");
+        const div = document.createElement("div");
+        div.className = "res-item";
+        div.innerHTML = `
+            <label>${name}</label>
+            <input type="number" id="${customId}" class="res" data-weight="${weight}" value="${initialQty}" onchange="calculateLogistics()">
+        `;
+        grid.appendChild(div);
+
+        // Add dynamically to select options in production builder
+        const inpSel = document.getElementById("modInputRes");
+        const outSel = document.getElementById("modOutputRes");
+        const opt1 = new Option(name, customId);
+        const opt2 = new Option(name, customId);
+        inpSel.add(opt1);
+        outSel.add(opt2);
+
+        logToTerminal(`Registered Dynamic Strategic Resource: "${name}" (Unit weight: ${weight} lbs)`);
+        document.getElementById("newResName").value = "";
+        document.getElementById("newResWeight").value = "1";
+        document.getElementById("newResQty").value = "0";
+
+        calculateLogistics();
+    }
+
+    // Core OS Calculations
+    function calculateLogistics() {
+        const strength = parseFloat(document.getElementById("statStr").value) || 0;
+        const carryCapacity = strength * 15;
+
+        // Sum static vault items
+        let totalWeight = 0;
+        registryItems.forEach(item => totalWeight += item.weight);
+
+        // Sum active resources weights from dynamic registry elements
+        const resourceInputs = document.querySelectorAll(".res");
+        resourceInputs.forEach(input => {
+            const qty = parseFloat(input.value) || 0;
+            const wtPerUnit = parseFloat(input.getAttribute("data-weight")) || 0;
+            totalWeight += (qty * wtPerUnit);
+        });
+
+        const statusBox = document.getElementById("capacityStatus");
+        statusBox.innerText = `Vault Stockpile: ${totalWeight.toFixed(2)} / ${carryCapacity} lbs (Capacity: ${(carryCapacity - totalWeight).toFixed(2)} free)`;
+
+        if (totalWeight > carryCapacity) {
+            statusBox.style.borderColor = "var(--neon-pink)";
+            statusBox.style.color = "var(--neon-pink)";
+            statusBox.innerHTML += "<br>⚡ WARNING: OVERLOAD DETECTED";
+        } else {
+            statusBox.style.borderColor = "var(--neon-green)";
+            statusBox.style.color = "var(--neon-green)";
+        }
+    }
+
+    // Planar Credit Exchange Engine
+    function planarExchange() {
+        const goldEl = document.getElementById("bankGp");
+        const creditsEl = document.getElementById("bankAc");
+
+        let gold = parseFloat(goldEl.value) || 0;
+        let credits = parseFloat(creditsEl.value) || 0;
+
+        if (gold >= 1000) {
+            gold -= 1000;
+            credits += 100;
+            goldEl.value = gold.toFixed(2);
+            creditsEl.value = credits;
+            logToTerminal("Executed Transaction: Exchanged 1000 GP for +100 Planar Credits (AC)");
+            calculateLogistics();
+        } else {
+            logToTerminal("ERROR: Insufficient Liquid Gold (GP) to complete transaction.");
+        }
+    }
+
+    // Run Production Modules Cycle
+    function runProductionCycle() {
+        logToTerminal("⚙️ Booting Run Production Cycle...");
+        let processedAny = false;
+
+        installedModules.forEach(mod => {
+            const inputEl = document.getElementById(mod.inputId);
+            const outputEl = document.getElementById(mod.outputId);
+
+            if (!inputEl || !outputEl) {
+                logToTerminal(`System Fault: Element reference lost for Module: ${mod.name}`);
+                return;
+            }
+
+            let currentInputVal = parseFloat(inputEl.value) || 0;
+            let currentOutputVal = parseFloat(outputEl.value) || 0;
+
+            if (currentInputVal >= mod.inputQty) {
+                currentInputVal -= mod.inputQty;
+                currentOutputVal += mod.outputQty;
+
+                inputEl.value = currentInputVal.toFixed(2);
+                outputEl.value = currentOutputVal.toFixed(2);
+
+                logToTerminal(`Module Action: [${mod.name}] successfully processed ${mod.inputQty} into ${mod.outputQty}`);
+                processedAny = true;
+            } else {
+                logToTerminal(`Logistics Halt: [${mod.name}] lacking input resources.`);
+            }
+        });
+
+        if (processedAny) {
+            logToTerminal("⚙️ Industrial engine run successfully completed.");
+            calculateLogistics();
+        } else {
+            logToTerminal("⚠️ Cycle ended. No operations executed due to missing materials.");
+        }
+    }
+
+    // Save All Integrated OS State to JSON
+    function saveToJSON() {
+        const form = document.getElementById('citySheet');
+        const data = {
+            metadata: {
+                version: "7.0",
+                timestamp: new Date().toISOString()
+            },
+            formFields: {},
+            dynamicElements: {
+                registryItems: registryItems,
+                installedModules: installedModules,
+                customResources: []
+            }
+        };
+
+        // Capture static and standard inputs/textareas
+        const inputs = form.querySelectorAll('input, textarea, select');
+        inputs.forEach(input => {
+            if (!input.id) return;
+            
+            // Skip dynamic item system/production builder fields
+            if (["newItemName", "newItemLabel", "newItemWeight", "modName", "modInputRes", "modInputQty", "modOutputRes", "modOutputQty", "newResName", "newResWeight", "newResQty"].includes(input.id)) {
+                return;
+            }
+
+            // Exclude dynamic inputs in lists/grids dynamically marked
+            if (input.classList.contains('res') && input.id.startsWith('custom_res_')) {
+                return;
+            }
+
+            if (input.type === 'checkbox') {
+                data.formFields[input.id] = input.checked;
+            } else if (input.type === 'number') {
+                data.formFields[input.id] = input.value !== "" ? Number(input.value) : null;
+            } else {
+                data.formFields[input.id] = input.value;
+            }
+        });
+
+        // Capture Dynamic Custom Resources
+        const dynamicResInputs = document.querySelectorAll(".res");
+        dynamicResInputs.forEach(input => {
+            if (input.id.startsWith('custom_res_')) {
+                const parent = input.parentElement;
+                const label = parent.querySelector('label').innerText;
+                data.dynamicElements.customResources.push({
+                    id: input.id,
+                    name: label,
+                    weight: parseFloat(input.getAttribute('data-weight')) || 0,
+                    qty: parseFloat(input.value) || 0
+                });
+            }
+        });
+
+        const jsonString = JSON.stringify(data, null, 4);
+        const cityName = document.getElementById('cityName').value.trim() || 'sovereign_hub';
+        const filename = `${cityName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_os_v7.json`;
+
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        logToTerminal("System backup successfully saved to local directory.");
+    }
+
+    // Load Integrated State from JSON
+    function loadFromJSON(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                const form = document.getElementById('citySheet');
+                
+                // Reset core form elements
+                form.reset();
+
+                // Hydrate Standard Inputs
+                if (data.formFields) {
+                    for (const key in data.formFields) {
+                        const input = document.getElementById(key);
+                        if (input) {
+                            if (input.type === 'checkbox') {
+                                input.checked = !!data.formFields[key];
+                            } else {
+                                input.value = data.formFields[key] !== null ? data.formFields[key] : '';
+                            }
+                        }
+                    }
+                }
+
+                // Clean & Hydrate Dynamic Elements
+                if (data.dynamicElements) {
+                    // Item Vault
+                    if (Array.isArray(data.dynamicElements.registryItems)) {
+                        registryItems = data.dynamicElements.registryItems;
+                    }
+                    // Production Modules
+                    if (Array.isArray(data.dynamicElements.installedModules)) {
+                        installedModules = data.dynamicElements.installedModules;
+                    }
+
+                    // Hydrate Dynamic Custom Resources
+                    const grid = document.getElementById("manifestGrid");
+                    // Clean previously made custom ones
+                    const elementsToRemove = grid.querySelectorAll("div.res-item");
+                    elementsToRemove.forEach(el => {
+                        const inp = el.querySelector('input');
+                        if (inp && inp.id.startsWith('custom_res_')) {
+                            el.remove();
+                        }
+                    });
+
+                    // Remove dynamic options from selector lists
+                    const inpSel = document.getElementById("modInputRes");
+                    const outSel = document.getElementById("modOutputRes");
+                    Array.from(inpSel.options).forEach(opt => {
+                        if (opt.value.startsWith('custom_res_')) opt.remove();
+                    });
+                    Array.from(outSel.options).forEach(opt => {
+                        if (opt.value.startsWith('custom_res_')) opt.remove();
+                    });
+
+                    // Load custom resources
+                    if (Array.isArray(data.dynamicElements.customResources)) {
+                        data.dynamicElements.customResources.forEach(res => {
+                            const div = document.createElement("div");
+                            div.className = "res-item";
+                            div.innerHTML = `
+                                <label>${res.name}</label>
+                                <input type="number" id="${res.id}" class="res" data-weight="${res.weight}" value="${res.qty}" onchange="calculateLogistics()">
+                            `;
+                            grid.appendChild(div);
+
+                            // Append options
+                            inpSel.add(new Option(res.name, res.id));
+                            outSel.add(new Option(res.name, res.id));
+                        });
+                        // Set counter variable to prevent ID collision
+                        customResourceCount = data.dynamicElements.customResources.length;
+                    }
+                }
+
+                // Sync view
+                updateCityName();
+                renderItems();
+                renderModules();
+                calculateLogistics();
+
+                logToTerminal('✨ Sovereignty State restored from JSON archive successfully.');
+            } catch (err) {
+                alert('Initialization error: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // Initial OS Setup
+    window.onload = function() {
+        updateCityName();
+        renderItems();
+        renderModules();
+        calculateLogistics();
+    }
+</script>
+
+</body>
+</html>
