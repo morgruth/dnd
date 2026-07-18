@@ -984,8 +984,7 @@
             row.className = "item-row";
             row.innerHTML = `
                 <span><span class="module-tag">${mod.name}</span> (${mod.inputQty} ${getLabelForId(mod.inputId)} &rarr; ${mod.outputQty} ${getLabelForId(mod.outputId)})</span>
-                <button type="button" onclick="removeModule(${index})" style="background: transparent; border: none; color: var(--neon-pink); cursor: pointer; font-weight: bold;">[ERASE]</button>
-            `;
+                <button type="button" onclick="removeModule(${index})" style="background: transparent; border: none; color: var(--neon-pink); cursor: pointer; font-weight: bold;">[ERASE]</button>`;
             list.appendChild(row);
         });
     }
@@ -1052,26 +1051,41 @@
             calculateLogistics();
         }
     }                                                                            
-    // Intelligence Sub-System (Multi-Tab Array Logic)                               function renderLore() {
-        const container = document.getElementById('loreDisplayContainer');               container.innerHTML = "";                                                        const entries = loreDatabase[activeLoreTab];
+    // Intelligence Sub-System (Multi-Tab Array Logic)                               
+    // 
+    function renderLore() {
+        const container = document.getElementById('loreDisplayContainer');
+            container.innerHTML = "";
+            const entries = loreDatabase[activeLoreTab];
 
-        if (!entries || entries.length === 0) {                                              container.innerHTML = `<div style="color: #554466; font-size: 0.8em; font-style: italic;">No tracks matched to current active vectors.</div>`;                    return;
-        }                                                                                                                                                                 entries.forEach((entry, idx) => {
+        if (!entries || entries.length === 0) {
+            container.innerHTML = `<div style="color: #554466; font-size: 0.8em; font-style: italic;">No tracks matched to current active vectors.</div>`;
+        return;
+        }
+        
+        entries.forEach((entry, idx) => {
             container.innerHTML += `
-                <div class="lore-entry">                                                             <div style="display:flex; justify-content: space-between; align-items: center;">
+                <div class="lore-entry">
+                    <div style="display:flex; justify-content: space-between; align-items: center;">
                         <span class="lore-title">> ${entry.title}</span>
                         <button type="button" onclick="deleteLoreEntry(${idx})" style="background:#330000; color:#ff3333; border:1px solid #ff3333; border-radius:3px; padding:2px 6px; font-size:0.7em; cursor:pointer;">PURGE</button>
-                    </div>                                                                           <div style="color: #b0a0cc; margin-top: 4px; padding-left: 10px; line-height: 1.3em;">${entry.body}</div>                                                     </div>`;
-        });                                                                          }
-                                                                                     function switchLoreTab(tabKey, btnElement) {
-        activeLoreTab = tabKey;                                                          document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                    </div>
+                    <div style="color: #b0a0cc; margin-top: 4px; padding-left: 10px; line-height: 1.3em;">${entry.body}</div>
+                    </div>`;
+        });
+    }
+    function switchLoreTab(tabKey, btnElement) {
+        activeLoreTab = tabKey;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
         btnElement.classList.add('active');
         renderLore();
     }                                                                            
-    function submitLoreEntry() {                                                         const title = document.getElementById('loreTitle').value.trim();
+    function submitLoreEntry() {
+        const title = document.getElementById('loreTitle').value.trim();
         const cat = document.getElementById('loreCategory').value;
         const body = document.getElementById('loreBody').value.trim();           
-        if (!title || !body) {                                                               alert("Title tag and data matrix inputs cannot be left blank.");
+        if (!title || !body) {
+            alert("Title tag and data matrix inputs cannot be left blank.");
             return;
         }
 
@@ -1088,24 +1102,29 @@
 
     function deleteLoreEntry(index) {
         logToTerminal(`ARCHIVE PURGE: Scrubbed record entry block from memory matrix arrays.`);
-        loreDatabase[activeLoreTab].splice(index, 1);                                    renderLore();
+        loreDatabase[activeLoreTab].splice(index, 1);
+        renderLore();
     }                                                                            
     function exportLoreJSON() {
         try {
             const dataStr = JSON.stringify(loreDatabase, null, 2);
             navigator.clipboard.writeText(dataStr).then(() => {
                 logToTerminal("EXPORT INTERFACE: Intelligence Database copied to terminal clipboard.");
-                alert("Database copy success! Structural matrix array copied to clipboard.");                                                                                 }).catch(() => {
+                alert("Database copy success! Structural matrix array copied to clipboard.");
+            }).catch(() => {
                 logToTerminal("CLIPBOARD REJECTION: Printing database text structure to master browser console.");
-                console.log(dataStr);                                                        });
+                console.log(dataStr);
+            });
         } catch (e) {
             logToTerminal(`CRITICAL MATRIX FAULT: ${e.message}`);
-        }                                                                            }
+        }
+    }
 
     function importLoreJSON() {
         const inputData = prompt("Paste full structural JSON data array packet payload directly into matrix mapping buffer:");
         if (!inputData) return;                                                  
-        try {                                                                                const parsed = JSON.parse(inputData);
+        try {
+            const parsed = JSON.parse(inputData);
             const keys = ['factions', 'npcs', 'anomalies', 'rumors', 'chronicles'];
             if (keys.every(key => Array.isArray(parsed[key]))) {
                 loreDatabase = parsed;
@@ -1113,7 +1132,8 @@
                 renderLore();
             } else {
                 logToTerminal("VALIDATION MISMATCH: Incompatible data structures detected.");
-            }                                                                            } catch (e) {
+            }
+        } catch (e) {
             logToTerminal(`PARSING FAULT: Check formatting logic code loops. (${e.message})`);
         }
     }
@@ -1140,7 +1160,8 @@
         const goldVal = parseFloat(document.getElementById("bankGp").value) || 0;
         totalWeight += (goldVal / 50);
 
-        const statusBox = document.getElementById("capacityStatus");                     const isOverburdened = totalWeight > carryCapacity;
+        const statusBox = document.getElementById("capacityStatus");
+        const isOverburdened = totalWeight > carryCapacity;
 
         statusBox.innerHTML =
             `<span style="color: ${isOverburdened ? 'var(--neon-pink)' : 'var(--neon-green)'}">` +
@@ -1149,7 +1170,8 @@
 
         if (isOverburdened) {
             statusBox.style.borderColor = "var(--neon-pink)";
-            statusBox.style.color = "var(--neon-pink)";                                  } else {
+            statusBox.style.color = "var(--neon-pink)";
+        } else {
             statusBox.style.borderColor = "var(--neon-green)";
             statusBox.style.color = "var(--neon-green)";
         }
@@ -1160,12 +1182,15 @@
             if (el) res.val = parseFloat(el.value) || 0;
         });
     }
-                                                                                     function planarExchange() {
-        const goldEl = document.getElementById("bankGp");                                const creditsEl = document.getElementById("bankAc");
+    function planarExchange() {
+        const goldEl = document.getElementById("bankGp");
+        const creditsEl = document.getElementById("bankAc");
 
-        let gold = parseFloat(goldEl.value) || 0;                                        let credits = parseFloat(creditsEl.value) || 0;
+        let gold = parseFloat(goldEl.value) || 0;
+        let credits = parseFloat(creditsEl.value) || 0;
 
-        if (gold >= 1000) {                                                                  gold -= 1000;
+        if (gold >= 1000) {
+            gold -= 1000;
             credits += 100;
             goldEl.value = gold.toFixed(2);
             creditsEl.value = credits;
@@ -1173,57 +1198,79 @@
             calculateLogistics();
         } else {
             logToTerminal("LEDGER ERROR: Insufficient gold balance threshold profiles.");
-        }                                                                            }                                                                            
+        }
+    }                                                                            
     // Unified System Data Porting (JSON Master Sync File Save/Load)
     function saveSystemSheet() {
         const form = document.getElementById('matrixForm');
         const data = {
-            version: "7.7-Combined",                                                         timestamp: new Date().toISOString(),
-            formFields: {},                                                                  registryItems: registryItems,
-            installedModules: installedModules,                                              loreDatabase: loreDatabase,
-            customResourcesManifest: defaultResourcesList                                };
-                                                                                         // Track static and structural standard grid parameters fields
+            version: "7.7-Combined",
+            timestamp: new Date().toISOString(),
+            formFields: {},
+            registryItems: registryItems,
+            installedModules: installedModules,
+            loreDatabase: loreDatabase,
+            customResourcesManifest: defaultResourcesList
+        };
+// Track static and structural standard grid parameters fields
         const selectors = form.querySelectorAll('input, textarea, select');
         selectors.forEach(input => {
             if (!input.id || input.classList.contains('res')) return;
 
             // Exclude operational buffer builders inputs elements
-            if (["newItemName", "newItemLabel", "newItemWeight", "modName", "modInputRes", "modInputQty", "modOutputRes", "modOutputQty", "newResName", "newResWeight", "newResQty", "loreTitle", "loreCategory", "loreBody"].includes(input.id)) {                return;
+            if (["newItemName", "newItemLabel", "newItemWeight", "modName", "modInputRes", "modInputQty", "modOutputRes", "modOutputQty", "newResName", "newResWeight", "newResQty", "loreTitle", "loreCategory", "loreBody"].includes(input.id)) {
+                return;
             }
 
             if (input.type === 'checkbox') {
                 data.formFields[input.id] = input.checked;
             } else if (input.type === 'number') {
                 data.formFields[input.id] = input.value !== "" ? Number(input.value) : null;
-            } else {                                                                             data.formFields[input.id] = input.value;
+            } else {
+                data.formFields[input.id] = input.value;
             }
         });                                                                      
         const jsonString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 4));
         const cityName = document.getElementById('cityName').value.trim() || 'sovereign_hub';
-        const filename = `${cityName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_matrix_core_v7.7.json`;                                                                                                                                                    const anchorNode = document.createElement('a');
+        const filename = `${cityName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_matrix_core_v7.7.json`;
+        const anchorNode = document.createElement('a');
         anchorNode.setAttribute("href", jsonString);
         anchorNode.setAttribute("download", filename);
         document.body.appendChild(anchorNode);
         anchorNode.click();
-        anchorNode.remove();                                                             logToTerminal("BACKUP MASTER COMPLETED: Full system matrix architecture array written out.");                                                                 }
-                                                                                     function loadSystemSheet(event) {
-        const file = event.target.files[0];                                              if (!file) return;
-                                                                                         const reader = new FileReader();
-        reader.onload = function(e) {                                                        try {
+        anchorNode.remove();
+        logToTerminal("BACKUP MASTER COMPLETED: Full system matrix architecture array written out.");
+    }
+    function loadSystemSheet(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
                 const matrixPacket = JSON.parse(e.target.result);                
-                if (matrixPacket.formFields) {                                                       for (const key in matrixPacket.formFields) {                                         const inputField = document.getElementById(key);
-                        if (inputField) {                                                                    if (inputField.type === 'checkbox') {                                                inputField.checked = !!matrixPacket.formFields[key];                                                                                                          } else {
+                if (matrixPacket.formFields) {
+                    for (const key in matrixPacket.formFields) {
+                        const inputField = document.getElementById(key);
+                        if (inputField) {
+                            if (inputField.type === 'checkbox') {
+                                inputField.checked = !!matrixPacket.formFields[key];
+                            } else {
                                 inputField.value = matrixPacket.formFields[key] !== null ? matrixPacket.formFields[key] : '';
-                            }                                                                            }
-                    }                                                                            }
-                                                                                                 if (Array.isArray(matrixPacket.registryItems)) registryItems = matrixPacket.registryItems;                                                                        if (Array.isArray(matrixPacket.installedModules)) installedModules = matrixPacket.installedModules;                                                               if (matrixPacket.loreDatabase) loreDatabase = matrixPacket.loreDatabase;                                                                                          if (Array.isArray(matrixPacket.customResourcesManifest)) defaultResourcesList = matrixPacket.customResourcesManifest;                             
+                            }
+                        }
+                    }
+                }
+                if (Array.isArray(matrixPacket.registryItems)) registryItems = matrixPacket.registryItems;
+                if (Array.isArray(matrixPacket.installedModules)) installedModules = matrixPacket.installedModules;
+                if (matrixPacket.loreDatabase) loreDatabase = matrixPacket.loreDatabase;
+                if (Array.isArray(matrixPacket.customResourcesManifest)) defaultResourcesList = matrixPacket.customResourcesManifest;                             
                 // Restructuring global view layouts elements layers
                 initResourceManifest();
                 updateCityName();
                 renderItems();
                 renderModules();
-                renderLore();                                                                    calculateLogistics();
-
+                renderLore();
+                calculateLogistics();
                 logToTerminal('✨ RESTORE STATE SUCCESSFUL: Full network matrix core synchronized to backup packet snapshot.');
             } catch (err) {
                 logToTerminal(`RESTORE FAULT ERROR: Core parameters matrix map failure. (${err.message})`);
@@ -1233,12 +1280,15 @@
         event.target.value = ''; // Reset core value block target lines
     }
 
-    // Engine Startup Sequence                                                       window.onload = function() {
+    // Engine Startup Sequence
+        window.onload = function() {
         initResourceManifest();
         updateCityName();
         renderItems();
         renderModules();
         renderLore();
-        calculateLogistics();                                                        }                                                                            </script>
-                                                                                 </body>
+        calculateLogistics();
+    }
+    </script>
+</body>
 </html>
