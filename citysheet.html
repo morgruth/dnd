@@ -1,16 +1,18 @@
+
+~ $ cat citysheet.html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sovereign OS v7.0: Arcane Industrial Hub</title>
+    <title>Sovereign OS v7.7: Ultimate Arcane Industrial Core</title>
     <style>
         :root {
             --neon-pink: #ff00ff;
             --neon-blue: #00ffff;
             --neon-green: #00ff00;
             --bg-dark: #09030e;
-            --panel-bg: rgba(22, 10, 32, 0.85);
+            --panel-bg: rgba(22, 10, 32, 0.9);
             --border-purple: #5c005c;
             --border-glow: #b300b3;
             --text-main: #e0d0f0;
@@ -26,7 +28,7 @@
         }
 
         .container {
-            max-width: 1300px;
+            max-width: 1400px;
             margin: 0 auto;
             background: var(--panel-bg);
             padding: 25px;
@@ -35,7 +37,7 @@
             box-shadow: 0 0 25px rgba(255, 0, 255, 0.25);
         }
 
-        /* Top Bar */
+        /* Top Bar Controls */
         .action-bar {
             background-color: #1a0826;
             padding: 12px 20px;
@@ -49,7 +51,7 @@
         }
 
         .os-title {
-            font-size: 1.2em;
+            font-size: 1.3em;
             font-weight: bold;
             color: #fff;
             text-shadow: 0 0 8px var(--neon-pink);
@@ -82,33 +84,16 @@
             box-shadow: 0 0 12px var(--neon-pink);
         }
 
-        .btn-blue {
-            border-color: var(--neon-blue);
-            color: var(--neon-blue);
-        }
+        .btn-blue { border-color: var(--neon-blue); color: var(--neon-blue); }
+        .btn-blue:hover { background-color: var(--neon-blue); color: #000; box-shadow: 0 0 12px var(--neon-blue); }
 
-        .btn-blue:hover {
-            background-color: var(--neon-blue);
-            color: #000;
-            box-shadow: 0 0 12px var(--neon-blue);
-        }
+        .btn-green { border-color: var(--neon-green); color: var(--neon-green); }
+        .btn-green:hover { background-color: var(--neon-green); color: #000; box-shadow: 0 0 12px var(--neon-green); }
 
-        .btn-green {
-            border-color: var(--neon-green);
-            color: var(--neon-green);
-        }
+        .btn-yellow { border-color: #ffff00; color: #ffff00; }
+        .btn-yellow:hover { background-color: #ffff00; color: #000; box-shadow: 0 0 12px #ffff00; }
 
-        .btn-green:hover {
-            background-color: var(--neon-green);
-            color: #000;
-            box-shadow: 0 0 12px var(--neon-green);
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        /* Grid Header */
+        /* Coordinates Header Grid */
         header {
             display: grid;
             grid-template-columns: 1fr 2fr;
@@ -179,27 +164,20 @@
             font-family: var(--font-mono);
         }
 
-        /* Multi-Column Layout */
+        /* Responsive Columns Grid */
         .sheet-body {
             display: grid;
             grid-template-columns: 1fr 1fr 1.2fr;
             gap: 20px;
         }
 
-        @media (max-width: 1024px) {
-            .sheet-body {
-                grid-template-columns: 1fr;
-            }
-            header {
-                grid-template-columns: 1fr;
-            }
-            .city-name-box {
-                border-right: none;
-                border-bottom: 1px solid var(--border-purple);
-            }
+        @media (max-width: 1100px) {
+            .sheet-body { grid-template-columns: 1fr; }
+            header { grid-template-columns: 1fr; }
+            .city-name-box { border-right: none; border-bottom: 1px solid var(--border-purple); }
         }
 
-        /* Sector Boxes */
+        /* Component Framework Sector Boxes */
         .box {
             background-color: rgba(15, 5, 25, 0.9);
             border: 1px solid var(--border-purple);
@@ -223,7 +201,7 @@
             text-shadow: 0 0 5px var(--neon-pink);
         }
 
-        /* Attributes and sliders */
+        /* Attributes sliders styling */
         .attributes-container {
             display: flex;
             flex-direction: column;
@@ -247,12 +225,7 @@
             color: #bbb;
         }
 
-        .attr-inputs {
-            display: flex;
-            align-items: center;
-            margin-left: auto;
-        }
-
+        .attr-inputs { margin-left: auto; }
         .attr-inputs input[type="number"] {
             width: 50px;
             text-align: center;
@@ -265,7 +238,7 @@
             color: var(--neon-green);
         }
 
-        /* Row Formats */
+        /* Custom Double Bubble Rows */
         .bubble-row {
             display: flex;
             align-items: center;
@@ -285,7 +258,7 @@
         }
 
         .bubble-row input {
-            width: 100px;
+            width: 110px;
             text-align: center;
             border: 1px solid var(--border-purple);
             border-radius: 10px;
@@ -311,7 +284,7 @@
             cursor: pointer;
         }
 
-        /* Statistics Layout */
+        /* Compact Combat Sub-stats Grid */
         .combat-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -340,7 +313,7 @@
             width: 100%;
             border: none;
             text-align: center;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             box-sizing: border-box;
             background: transparent;
@@ -348,21 +321,20 @@
             font-family: var(--font-mono);
         }
 
-        /* Textareas */
-        textarea {
-            width: 100%;
+        /* Textarea inputs styling */
+        textarea, select {
+            background-color: #10021a;
             border: 1px solid var(--border-purple);
             border-radius: 4px;
-            background-color: #10021a;
-            color: var(--text-main);
+            color: var(--neon-green);
             font-family: var(--font-mono);
             font-size: 11px;
             padding: 8px;
             box-sizing: border-box;
-            resize: vertical;
         }
+        textarea { width: 100%; resize: none; }
 
-        /* Grid Table Input */
+        /* Wards Matrix Grid Layout */
         .attack-table {
             width: 100%;
             border-collapse: collapse;
@@ -377,10 +349,7 @@
             padding-bottom: 4px;
         }
 
-        .attack-table td {
-            padding: 4px 0;
-        }
-
+        .attack-table td { padding: 4px 0; }
         .attack-table input {
             width: 95%;
             border: none;
@@ -392,21 +361,21 @@
             font-family: var(--font-mono);
         }
 
-        /* Real-Time Terminal Log */
+        /* Real-Time Terminal Output Log */
         #log {
             background: #000;
             border: 1px solid var(--border-purple);
-            height: 140px;
+            height: 150px;
             overflow-y: auto;
             padding: 10px;
             font-size: 0.8em;
             color: var(--neon-green);
-            margin-top: 15px;
+            margin-top: 10px;
             border-radius: 4px;
             box-shadow: inset 0 0 10px rgba(0, 255, 0, 0.15);
         }
 
-        /* Item Vault and List Registries */
+        /* Registries Dynamic Lists Layout */
         .item-list {
             list-style: none;
             padding: 0;
@@ -434,13 +403,14 @@
             border: 1px solid var(--neon-pink);
         }
 
-        /* Resource Stockpile Grid */
+        /* Dynamic Resource Manifest Grid */
         .res-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 8px;
-            max-height: 320px;
+            max-height: 350px;
             overflow-y: auto;
+            padding-right: 4px;
         }
 
         .res-item {
@@ -469,21 +439,65 @@
             font-family: var(--font-mono);
         }
 
+        /* Central Displacements Box */
         .status-box {
             text-align: center;
-            font-size: 1.1em;
+            font-size: 1.05em;
             font-weight: bold;
-            padding: 10px;
+            padding: 12px;
             border: 2px dashed var(--neon-pink);
             margin: 15px 0;
             background: rgba(30, 5, 40, 0.8);
             border-radius: 6px;
         }
 
-        .module-tag {
-            color: var(--neon-blue);
-            font-weight: bold;
+        .module-tag { color: var(--neon-blue); font-weight: bold; }
+
+        /* Lore Matrix Tabs Subsystem CSS */
+        .tab-menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            border-bottom: 1px solid var(--border-purple);
+            padding-bottom: 6px;
+            margin-bottom: 10px;
         }
+
+        .tab-btn {
+            font-family: var(--font-mono);
+            padding: 6px 10px;
+            font-size: 0.75em;
+            background: #1a0826;
+            color: var(--neon-pink);
+            border: 1px solid var(--border-purple);
+            cursor: pointer;
+            border-radius: 4px;
+            text-transform: uppercase;
+        }
+
+        .tab-btn.active {
+            background: var(--neon-pink);
+            color: #000;
+            box-shadow: 0 0 8px var(--neon-pink);
+        }
+
+        .lore-display {
+            max-height: 250px;
+            overflow-y: auto;
+            background: #05000a;
+            border: 1px dashed var(--border-purple);
+            padding: 10px;
+            border-radius: 4px;
+        }
+
+        .lore-entry {
+            border-bottom: 1px solid #330044;
+            padding: 8px 0;
+            font-size: 0.85em;
+        }
+
+        .lore-entry:last-child { border-bottom: none; }
+        .lore-title { color: var(--neon-blue); font-weight: bold; }
 
         .footer {
             margin-top: 30px;
@@ -500,23 +514,22 @@
 <body>
 
 <div class="container">
-    
-    <!-- Top Bar Controls -->
+
     <div class="action-bar">
-        <h2 class="os-title" id="mainHeader">Sovereign OS v7.0: Arcane Hub</h2>
+        <h2 class="os-title" id="mainHeader">Sovereign OS v7.7: Global Industrial Matrix</h2>
         <div class="btn-group">
-            <button class="btn btn-save" onclick="saveToJSON()">Save OS State</button>
-            <button class="btn btn-load" onclick="document.getElementById('fileInput').click()">Load OS State</button>
-            <input type="file" id="fileInput" accept=".json" onchange="loadFromJSON(event)">
+            <button class="btn btn-blue" onclick="saveSystemSheet()">💾 Save Matrix State</button>
+            <button class="btn btn-yellow" onclick="document.getElementById('fileInput').click()">📂 Load Matrix State</button>
+            <input type="file" id="fileInput" accept=".json" style="display:none;" onchange="loadSystemSheet(event)">
         </div>
     </div>
 
-    <form id="citySheet" onsubmit="event.preventDefault();">
-        <!-- Core Hub Coordinates (Header Block) -->
+    <form id="matrixForm" onsubmit="event.preventDefault();">
+
         <header>
             <div class="city-name-box">
                 <label>Domain / Settlement Name</label>
-                <input type="text" id="cityName" value="Briar" onchange="updateCityName()">
+                <input type="text" id="cityName" value="Briar Hub" onchange="updateCityName()">
             </div>
             <div class="header-details-grid">
                 <div class="detail-item">
@@ -547,12 +560,11 @@
         </header>
 
         <div class="sheet-body">
-            
-            <!-- COLUMN 1: System Ledger, Credentials, Attributes -->
+
             <div class="column">
                 <div class="box">
                     <h3 class="box-title">Sovereign Ledger</h3>
-                    
+
                     <label style="font-size: 8px; color: #8a7b9c; text-transform: uppercase;">Logistics Anchor Strength (STR)</label>
                     <input type="number" id="statStr" value="17" onchange="calculateLogistics()" style="background: #1a002a; border: 1px solid var(--border-purple); color: var(--neon-green); width: 100%; padding: 6px; box-sizing: border-box; margin-bottom: 10px; font-weight: bold;">
 
@@ -563,8 +575,8 @@
                     <input type="number" id="bankAc" value="1600" style="background: #1a002a; border: 1px solid var(--border-purple); color: var(--neon-pink); width: 100%; padding: 6px; box-sizing: border-box; margin-bottom: 10px; font-weight: bold;">
 
                     <div style="display: flex; gap: 8px; margin-top: 5px;">
-                        <button class="btn btn-blue" onclick="planarExchange()" style="flex: 1; padding: 6px; font-size: 8px;">Exchange Gold (1000 GP : 100 AC)</button>
-                        <button class="btn btn-green" onclick="runProductionCycle()" style="flex: 1; padding: 6px; font-size: 8px;">Run Production</button>
+                        <button type="button" class="btn btn-blue" onclick="planarExchange()" style="flex: 1; padding: 6px; font-size: 8px;">Planar Exchange (1k GP:100 AC)</button>
+                        <button type="button" class="btn btn-green" onclick="runProductionCycle()" style="flex: 1; padding: 6px; font-size: 8px;">Run Production</button>
                     </div>
                 </div>
 
@@ -620,7 +632,6 @@
                 </div>
             </div>
 
-            <!-- COLUMN 2: Inventory Vault, Districts, & Logistics Status -->
             <div class="column">
                 <div class="combat-stats">
                     <div class="combat-box">
@@ -637,26 +648,45 @@
                     </div>
                 </div>
 
-                <!-- Carry Capacity Status Box -->
                 <div class="status-box" id="capacityStatus">
-                    Vault Loadout: Calculating...
+                    Vault Loadout: Syncing Matrices...
                 </div>
 
                 <div class="box">
                     <h3 class="box-title">Vault Artifact Registry</h3>
                     <div style="display: flex; gap: 8px; margin-bottom: 8px;">
-                        <input type="text" id="newItemName" placeholder="Artifact Name" style="width: 50%; font-size: 11px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
-                        <input type="text" id="newItemLabel" placeholder="Attribute/Tag" style="width: 50%; font-size: 11px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                        <input type="text" id="newItemName" placeholder="Artifact Name" style="width: 50%; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                        <input type="text" id="newItemLabel" placeholder="Tag (e.g. Attuned)" style="width: 50%; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
                     </div>
                     <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                         <label style="font-size: 8px; text-transform: uppercase;">Weight (lbs):</label>
-                        <input type="number" id="newItemWeight" value="1" style="width: 60px; font-size: 11px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
-                        <button class="btn btn-blue" onclick="addItem()" style="flex: 1; padding: 4px; font-size: 9px; margin-top: 0;">Add Vault Entry</button>
+                        <input type="number" id="newItemWeight" value="1" style="width: 60px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                        <button type="button" class="btn btn-blue" onclick="addItem()" style="flex: 1; padding: 4px; font-size: 9px; margin-top: 0;">Add Vault Entry</button>
                     </div>
-                    
-                    <ul id="itemList" class="item-list">
-                        <!-- Dynamic items load here -->
-                    </ul>
+
+                    <ul id="itemList" class="item-list"></ul>
+                </div>
+
+                <div class="box">
+                    <h3 class="box-title">Dynamic Production Modules</h3>
+                    <div style="margin-bottom: 8px;">
+                        <input type="text" id="modName" placeholder="New Module Name (e.g. Iron Foundry)" style="width: 100%; font-size: 11px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff; margin-bottom: 6px; box-sizing: border-box; padding: 4px;">
+                        <div style="display: flex; gap: 6px;">
+                            <div style="width: 50%;">
+                                <label style="font-size: 8px; text-transform: uppercase;">Input (Burn)</label>
+                                <select id="modInputRes" style="width: 100%; padding: 4px;"></select>
+                                <input type="number" id="modInputQty" value="2" style="width: 100%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff; margin-top: 4px; box-sizing: border-box; padding: 2px;">
+                            </div>
+                            <div style="width: 50%;">
+                                <label style="font-size: 8px; text-transform: uppercase;">Output (Yield)</label>
+                                <select id="modOutputRes" style="width: 100%; padding: 4px;"></select>
+                                <input type="number" id="modOutputQty" value="5" style="width: 100%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff; margin-top: 4px; box-sizing: border-box; padding: 2px;">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-green" onclick="addModule()" style="padding: 6px; font-size: 9px; width: 100%; margin-top: 8px;">Install Sub-Module</button>
+                    </div>
+
+                    <ul id="moduleList" class="item-list"></ul>
                 </div>
 
                 <div class="box">
@@ -683,152 +713,230 @@
                             </tr>
                         </tbody>
                     </table>
-                    <textarea id="district_notes" placeholder="Secondary grid zones or auxiliary outposts..." style="height: 50px; margin-top: 8px;"></textarea>
-                </div>
-
-                <div class="box">
-                    <h3 class="box-title">Primary Exports</h3>
-                    <textarea id="exports" style="height: 50px;">Aether Engines, Refined Shadow-Iron, Runed Focus Plates, Mana Crystals</textarea>
-                </div>
-
-                <div class="box">
-                    <h3 class="box-title">Necessary Dependencies</h3>
-                    <textarea id="imports" style="height: 50px;">Raw Obsidian, Shadow-Oak Timber, Alchemical Solvents, Organic Rations</textarea>
+                    <textarea id="district_notes" placeholder="Secondary grid zones or auxiliary outposts..." style="height: 40px; margin-top: 8px;"></textarea>
                 </div>
             </div>
 
-            <!-- COLUMN 3: Factions, Resources, & Production Modules -->
             <div class="column">
+
+                <div class="box">
+                    <h3 class="box-title">Domain Intelligence Matrix</h3>
+                    <div style="border: 1px dashed var(--border-purple); padding: 8px; margin-bottom: 12px; background: rgba(20, 5, 30, 0.5); border-radius: 4px;">
+                        <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                            <input type="text" id="loreTitle" placeholder="Identity / Track Header" style="width: 55%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                            <select id="loreCategory" style="width: 45%; font-size: 10px; padding: 2px;">
+                                <option value="factions">Factions / Power Structures</option>
+                                <option value="npcs">Local Outliers (NPCs)</option>
+                                <option value="anomalies">Anomalies & Customs</option>
+                                <option value="rumors">Current Signal Feeds</option>
+                                <option value="chronicles">Chronicles & Origins</option>
+                            </select>
+                        </div>
+                        <textarea id="loreBody" placeholder="Log analytics text, server packet feeds, or architectural logs..." style="height: 50px; font-size: 10px; margin-bottom: 4px;"></textarea>
+                        <button type="button" class="btn btn-blue" onclick="submitLoreEntry()" style="padding: 4px; font-size: 8px; width: 100%;">Commit Data Track</button>
+                    </div>
+
+                    <div class="tab-menu">
+                        <button type="button" class="tab-btn active" onclick="switchLoreTab('factions', this)">Factions</button>
+                        <button type="button" class="tab-btn" onclick="switchLoreTab('npcs', this)">NPCs</button>
+                        <button type="button" class="tab-btn" onclick="switchLoreTab('anomalies', this)">Anomalies</button>
+                        <button type="button" class="tab-btn" onclick="switchLoreTab('rumors', this)">Feeds</button>
+                        <button type="button" class="tab-btn" onclick="switchLoreTab('chronicles', this)">Origins</button>
+                    </div>
+                    <div class="lore-display" id="loreDisplayContainer"></div>
+
+                    <div style="display: flex; gap: 8px; margin-top: 8px;">
+                        <button type="button" class="btn btn-blue" onclick="exportLoreJSON()" style="flex: 1; padding: 4px; font-size: 8px;">Export Logs</button>
+                        <button type="button" class="btn btn-yellow" onclick="importLoreJSON()" style="flex: 1; padding: 4px; font-size: 8px;">Import Logs</button>
+                    </div>
+                </div>
+
                 <div class="box">
                     <h3 class="box-title">Strategic Resource Manifest</h3>
-                    
-                    <!-- Dynamic Resource Registration -->
+
                     <div style="border: 1px dashed rgba(255, 0, 255, 0.4); padding: 8px; margin-bottom: 12px; background: rgba(20, 5, 30, 0.5); border-radius: 4px;">
                         <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-                            <input type="text" id="newResName" placeholder="Res Name (e.g. Mithril)" style="width: 45%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
+                            <input type="text" id="newResName" placeholder="Resource Name" style="width: 45%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
                             <input type="number" id="newResWeight" placeholder="Wt (lbs)" value="1" style="width: 25%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
                             <input type="number" id="newResQty" placeholder="Qty" value="0" style="width: 30%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff;">
                         </div>
-                        <button class="btn btn-blue" onclick="registerNewResource()" style="padding: 4px; font-size: 8px; width: 100%; margin: 0;">Register Strategic Resource</button>
+                        <button type="button" class="btn btn-blue" onclick="registerNewResourceClick()" style="padding: 4px; font-size: 8px; width: 100%; margin: 0;">Register Strategic Resource</button>
                     </div>
 
-                    <!-- Global Grid Stockpiles -->
-                    <div class="res-grid" id="manifestGrid">
-                        <div class="res-item"><label>Shadow-Iron</label><input type="number" id="resIron" class="res" data-weight="10" value="487.2" onchange="calculateLogistics()"></div>
-                        <div class="res-item"><label>Shadow-Oak</label><input type="number" id="resWood" class="res" data-weight="2" value="2914.8" onchange="calculateLogistics()"></div>
-                        <div class="res-item"><label>Obsidian</label><input type="number" id="resObsidian" class="res" data-weight="5" value="473.4" onchange="calculateLogistics()"></div>
-                        <div class="res-item"><label>Aether-Grain</label><input type="number" id="resGrain" class="res" data-weight="1" value="5000" onchange="calculateLogistics()"></div>
-                        <div class="res-item"><label>Raw Produce</label><input type="number" id="resProduce" class="res" data-weight="1" value="5" onchange="calculateLogistics()"></div>
-                        <div class="res-item"><label>Aether Crystals</label><input type="number" id="resCrystals" class="res" data-weight="1" value="51.8" onchange="calculateLogistics()"></div>
-                        <div class="res-item"><label>Static Essence</label><input type="number" id="resEssence" class="res" data-weight="0" value="27.03" onchange="calculateLogistics()"></div>
-                    </div>
+                    <div class="res-grid" id="manifestGrid"></div>
                 </div>
 
-                <div class="box">
-                    <h3 class="box-title">Dynamic Production Modules</h3>
-                    <div style="margin-bottom: 8px;">
-                        <input type="text" id="modName" placeholder="New Module (e.g. Iron Siphon)" style="width: 100%; font-size: 11px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff; margin-bottom: 6px; box-sizing: border-box; padding: 4px;">
-                        <div style="display: flex; gap: 6px;">
-                            <div style="width: 50%;">
-                                <label style="font-size: 8px; text-transform: uppercase;">Input (Burn)</label>
-                                <select id="modInputRes" style="width: 100%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: var(--neon-blue); padding: 4px;">
-                                    <option value="resWood">Shadow-Oak</option>
-                                    <option value="resGrain">Aether-Grain</option>
-                                    <option value="bankGp">Liquid Gold (GP)</option>
-                                    <option value="resIron">Shadow-Iron</option>
-                                    <option value="resCrystals">Aether Crystals</option>
-                                    <option value="resObsidian">Obsidian</option>
-                                    <option value="resEssence">Static Essence</option>
-                                </select>
-                                <input type="number" id="modInputQty" value="2" style="width: 100%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff; margin-top: 4px; box-sizing: border-box; padding: 2px;">
-                            </div>
-                            <div style="width: 50%;">
-                                <label style="font-size: 8px; text-transform: uppercase;">Output (Yield)</label>
-                                <select id="modOutputRes" style="width: 100%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: var(--neon-pink); padding: 4px;">
-                                    <option value="resIron">Shadow-Iron</option>
-                                    <option value="resCrystals">Aether Crystals</option>
-                                    <option value="bankGp">Liquid Gold (GP)</option>
-                                    <option value="resWood">Shadow-Oak</option>
-                                    <option value="resGrain">Aether-Grain</option>
-                                    <option value="resObsidian">Obsidian</option>
-                                    <option value="resEssence">Static Essence</option>
-                                </select>
-                                <input type="number" id="modOutputQty" value="5" style="width: 100%; font-size: 10px; background: #1a002a; border: 1px solid var(--border-purple); color: #fff; margin-top: 4px; box-sizing: border-box; padding: 2px;">
-                            </div>
-                        </div>
-                        <button class="btn btn-green" onclick="addModule()" style="padding: 6px; font-size: 9px; width: 100%; margin-top: 8px;">Install Sub-Module</button>
-                    </div>
-
-                    <ul id="moduleList" class="item-list">
-                        <!-- Dynamic industrial engines run here -->
-                    </ul>
-                </div>
-
-                <div class="box">
+                <div class="box" style="margin-bottom:0;">
                     <h3 class="box-title">System Log Terminal</h3>
-                    <div id="log">--- Terminal Initiated ---</div>
+                    <div id="log">--- Terminal Matrix Initialized ---</div>
                 </div>
+            </div>
 
-                <div class="box">
-                    <h3 class="box-title">Power Structures & Factions</h3>
-                    <textarea id="factions" placeholder="Secret cabals, guilds, or noble houses..." style="height: 60px;">The Mechanists Guild, Archon Core Sentinels, Cult of the Fractured Star</textarea>
+        </div>
+
+        <div class="box" style="margin-top: 20px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div>
+                    <h3 class="box-title" style="font-size:10px; text-align:left;">Primary Exports</h3>
+                    <textarea id="exports" style="height: 45px;">Aether Engines, Refined Shadow-Iron, Runed Focus Plates, Mana Crystals</textarea>
                 </div>
-
-                <div class="box">
-                    <h3 class="box-title">Local Outliers (NPCs)</h3>
-                    <textarea id="notable_npcs" placeholder="Key high mages, network administrators, barkeeps..." style="height: 60px;">Logistics Unit X-77, Grand Artificer Vane, Silas the Whispering Alchemist</textarea>
-                </div>
-
-                <div class="box">
-                    <h3 class="box-title">Anomalies & Customs</h3>
-                    <textarea id="quirks" placeholder="Weird regional phenomena, odd taboos..." style="height: 50px;">Aether storms cycle every 14 hours; mechanical limbs are seen as high fashion.</textarea>
-                </div>
-
-                <div class="box">
-                    <h3 class="box-title">Current Signal Feeds (Rumors)</h3>
-                    <textarea id="rumors" placeholder="What whisperings circulate the terminals?" style="height: 50px;">A rogue construct has been speaking prophecies in the lower market sector.</textarea>
-                </div>
-
-                <div class="box">
-                    <h3 class="box-title">Chronicles & Origin Logs</h3>
-                    <textarea id="history" placeholder="Who established this domain? How long has it stood?" style="height: 50px;">Founded on the wreckage of Plane-Shift Tower III during the Great Calamity.</textarea>
+                <div>
+                    <h3 class="box-title" style="font-size:10px; text-align:left;">Necessary Dependencies</h3>
+                    <textarea id="imports" style="height: 45px;">Raw Obsidian, Shadow-Oak Timber, Alchemical Solvents, Organic Rations</textarea>
                 </div>
             </div>
         </div>
+
     </form>
 
     <div class="footer">
-        Sovereign Forge Systems — Security Engine Approved. Personal and Administrative Use Permitted.
+        Sovereign Forge Systems v7.7 Matrix Master Grid — Security Clearance Confirmed.
     </div>
 </div>
 
 <script>
-    // System Variables
+    // Master Core Structures Database Arrays
     let registryItems = [
-        { name: "Void-Forged Lens", label: "Attuned", weight: 4.5 },
-        { name: "Resonator Core", label: "Experimental", weight: 12.0 }
+        { name: "Mantle of Echoes", label: "Relic", weight: 2.0 },
+        { name: "Wand of Secrets", label: "Active", weight: 1.0 },
+        { name: "Blade of the Warden", label: "Equipped", weight: 3.0 }
     ];
 
     let installedModules = [
-        { name: "Shadow-Iron Smelter", inputId: "resWood", inputQty: 10, outputId: "resIron", outputQty: 5 }
+        { name: "Iron Harmony Foundry", inputId: "resWood", inputQty: 2, outputId: "resIron", outputQty: 5 }
     ];
 
-    // Logging helper
+    let loreDatabase = {
+        factions: [
+            { title: "The Obsidian Conclave", body: "Secret cabal working behind the architectural frameworks. Hold 40% voting leverage in infrastructure guilds." },
+            { title: "House of Briar-Glass", body: "High noble house controlling regional exports of glass-antelope hide and planar essences." }
+        ],
+        npcs: [
+            { title: "Arch-Mage Vaelen", body: "Key high mage anchoring the lower planar wardings. Found regularly at the local terminal arrays." },
+            { title: "Kaelen (Sys-Admin)", body: "Network administrator monitoring the rumor packet distribution channels across the sector." }
+        ],
+        anomalies: [
+            { title: "Chronostatic Flux", body: "Weird regional phenomenon causing localized systems to loop production inputs randomly." },
+            { title: "The Iron Taboo", body: "Odd local custom: No bare iron may touch bare ground within city walls, or ward efficiency drops." }
+        ],
+        rumors: [
+            { title: "Feed #091-B", body: "Terminal whisperings claim a subterranean silver vein has ruptured near the perimeter border towers." }
+        ],
+        chronicles: [
+            { title: "The Sovereign Genesis", body: "Domain established in Cycle 442 by the First Administrator after sealing the Planar Rift anomalies." }
+        ]
+    };
+
+    // Consolidated Core Stockpiles List
+    let defaultResourcesList = [
+        { id: "resIron", name: "Shadow-Iron", weight: 10, val: 487.2 },
+        { id: "resWood", name: "Shadow-Oak", weight: 2, val: 2914.8 },
+        { id: "resObsidian", name: "Obsidian", weight: 5, val: 473.4 },
+        { id: "resGrain", name: "Aether-Grain", weight: 1, val: 5000 },
+        { id: "resProduce", name: "Produce", weight: 1, val: 5 },
+        { id: "resLivestock", name: "Livestock", weight: 0, val: 2 },
+        { id: "resArsenal", name: "Arsenal", weight: 6, val: 15 },
+        { id: "resCrystals", name: "Aether Crystals", weight: 1, val: 51.8 },
+        { id: "resEssence", name: "Static Essence", weight: 0, val: 27.03 },
+        { id: "resWardens", name: "Wardens (Units)", weight: 0, val: 20 },
+        { id: "resWatch", name: "City Watch (Units)", weight: 0, val: 50 },
+        { id: "resSignet", name: "Signet Ring", weight: 0, val: 1 },
+        { id: "resSilver", name: "Silver Veins", weight: 10, val: 0 },
+        { id: "resSalt", name: "High-Grade Salt", weight: 2, val: 0 },
+        { id: "resHawks", name: "Aether-Hawks", weight: 0, val: 50 },
+        { id: "resAntelope", name: "Glass-Antelope", weight: 0, val: 100 },
+        { id: "resOaks", name: "Sentinel Oaks", weight: 0, val: 1200 },
+        { id: "resLeviathans", name: "Leviathans", weight: 0, val: 12 }
+    ];
+
+    let activeLoreTab = 'factions';
+
     function logToTerminal(message) {
         const logBox = document.getElementById("log");
         const timestamp = new Date().toLocaleTimeString();
-        logBox.innerHTML += `<br>[${timestamp}] ${message}`;
+        logBox.innerHTML += `<div>[${timestamp}] ${message}</div>`;
         logBox.scrollTop = logBox.scrollHeight;
     }
 
-    // Dynamic Title Updating
     function updateCityName() {
-        const name = document.getElementById('cityName').value.trim() || 'Briar';
-        document.getElementById('mainHeader').innerText = `Sovereign OS: ${name} Industrial Hub`;
-        logToTerminal(`Domain Registry updated: Name set to ${name}`);
+        const name = document.getElementById('cityName').value.trim() || 'Sovereign Core';
+        document.getElementById('mainHeader').innerText = `Sovereign OS: ${name}`;
+        logToTerminal(`Seat of Power re-indexed: Established as [${name}]`);
+        calculateLogistics();
     }
 
-    // Dynamic Item Vault Management
+    // Dynamic Manifest Registry Generation Engine
+    function initResourceManifest() {
+        const grid = document.getElementById("manifestGrid");
+        grid.innerHTML = "";
+
+        defaultResourcesList.forEach(res => {
+            const div = document.createElement("div");
+            div.className = "res-item";
+            div.innerHTML = `
+                <label>${res.name}</label>
+                <input type="number" id="${res.id}" class="res" data-weight="${res.weight}" value="${res.val}" onchange="calculateLogistics()">
+            `;
+            grid.appendChild(div);
+        });
+        rebuildSelectorDropdowns();
+    }
+
+    function registerNewResourceClick() {
+        const name = document.getElementById("newResName").value.trim();
+        const weight = parseFloat(document.getElementById("newResWeight").value);
+        const qty = parseFloat(document.getElementById("newResQty").value) || 0;
+
+        if (!name || isNaN(weight) || weight < 0) {
+            alert("Valid Resource Name and positive Weight fields are required.");
+            return;
+        }
+
+        const cleanId = "res_" + name.replace(/[^a-zA-Z0-9]/g, '');
+        if (document.getElementById(cleanId)) {
+            logToTerminal(`ERROR: Identifier conflict. [${name}] already occupies a register block.`);
+            return;
+        }
+
+        defaultResourcesList.push({ id: cleanId, name: name, weight: weight, val: qty });
+        logToTerminal(`MANIFEST REGISTRY: Linked structural resource field [${name}] (${weight} lbs)`);
+
+        document.getElementById("newResName").value = "";
+        document.getElementById("newResWeight").value = "1";
+        document.getElementById("newResQty").value = "0";
+
+        initResourceManifest();
+        calculateLogistics();
+    }
+
+    function rebuildSelectorDropdowns() {
+        const inpSel = document.getElementById("modInputRes");
+        const outSel = document.getElementById("modOutputRes");
+
+        const prevInputVal = inpSel.value;
+        const prevOutputVal = outSel.value;
+
+        inpSel.innerHTML = "";
+        outSel.innerHTML = "";
+
+        // Inject standard hard currencies references
+        const currencyOpts = [{ id: "bankGp", name: "Liquid Gold (GP)" }, { id: "bankAc", name: "Planar Credits (AC)" }];
+
+        currencyOpts.forEach(c => {
+            inpSel.add(new Option(c.name, c.id));
+            outSel.add(new Option(c.name, c.id));
+        });
+
+        defaultResourcesList.forEach(res => {
+            inpSel.add(new Option(res.name, res.id));
+            outSel.add(new Option(res.name, res.id));
+        });
+
+        if (prevInputVal) inpSel.value = prevInputVal;
+        if (prevOutputVal) outSel.value = prevOutputVal;
+    }
+
+    // Vault Render Elements
     function renderItems() {
         const list = document.getElementById("itemList");
         list.innerHTML = "";
@@ -836,8 +944,8 @@
             const row = document.createElement("li");
             row.className = "item-row";
             row.innerHTML = `
-                <span>${item.name} <span class="label-tag">${item.label}</span></span>
-                <span style="color: #999;">${item.weight} lbs 
+                <span><strong>${item.name}</strong> <span class="label-tag">${item.label}</span></span>
+                <span style="color: #999;">${item.weight} lbs
                 <button type="button" onclick="removeItem(${index})" style="background: transparent; border: none; color: var(--neon-pink); cursor: pointer; margin-left: 10px; font-weight: bold;">[X]</button></span>
             `;
             list.appendChild(row);
@@ -847,16 +955,16 @@
 
     function addItem() {
         const name = document.getElementById("newItemName").value.trim();
-        const label = document.getElementById("newItemLabel").value.trim() || "Registered";
+        const label = document.getElementById("newItemLabel").value.trim() || "Standard";
         const weight = parseFloat(document.getElementById("newItemWeight").value) || 0;
 
         if (!name) {
-            alert("Artifact Name is required.");
+            alert("Artifact Identifier signature required.");
             return;
         }
 
         registryItems.push({ name, label, weight });
-        logToTerminal(`Registered Artifact: "${name}" (${weight} lbs) under tag [${label}]`);
+        logToTerminal(`CONTAINMENT DEPOT: Anchored [${name}] into registry framework.`);
         document.getElementById("newItemName").value = "";
         document.getElementById("newItemLabel").value = "";
         document.getElementById("newItemWeight").value = "1";
@@ -865,11 +973,11 @@
 
     function removeItem(index) {
         const removed = registryItems.splice(index, 1);
-        logToTerminal(`Purged from vault: "${removed[0].name}"`);
+        logToTerminal(`VAULT COMPILATION: Cleared entry record [${removed[0].name}].`);
         renderItems();
     }
 
-    // Custom Industrial Sub-Modules
+    // Industrial Transformation Engine Logic
     function renderModules() {
         const list = document.getElementById("moduleList");
         list.innerHTML = "";
@@ -877,8 +985,8 @@
             const row = document.createElement("li");
             row.className = "item-row";
             row.innerHTML = `
-                <span><span class="module-tag">${mod.name}</span> (${mod.inputQty} ${getLabelForId(mod.inputId)} ➔ ${mod.outputQty} ${getLabelForId(mod.outputId)})</span>
-                <button type="button" onclick="removeModule(${index})" style="background: transparent; border: none; color: var(--neon-pink); cursor: pointer; font-weight: bold;">[X]</button>
+                <span><span class="module-tag">${mod.name}</span> (${mod.inputQty} ${getLabelForId(mod.inputId)} &rarr; ${mod.outputQty} ${getLabelForId(mod.outputId)})</span>
+                <button type="button" onclick="removeModule(${index})" style="background: transparent; border: none; color: var(--neon-pink); cursor: pointer; font-weight: bold;">[ERASE]</button>
             `;
             list.appendChild(row);
         });
@@ -886,11 +994,9 @@
 
     function getLabelForId(id) {
         if (id === 'bankGp') return 'GP';
-        const el = document.getElementById(id);
-        if (el && el.previousElementSibling) {
-            return el.previousElementSibling.innerText;
-        }
-        return id;
+        if (id === 'bankAc') return 'AC';
+        const item = defaultResourcesList.find(r => r.id === id);
+        return item ? item.name : id;
     }
 
     function addModule() {
@@ -901,126 +1007,31 @@
         const outputQty = parseFloat(document.getElementById("modOutputQty").value) || 0;
 
         if (!name) {
-            alert("Module Name is required.");
+            alert("Module Operation ID tag required.");
             return;
         }
 
         installedModules.push({ name, inputId, inputQty, outputId, outputQty });
-        logToTerminal(`Installed Core Sub-Module: "${name}"`);
+        logToTerminal(`INFRASTRUCTURE BLOCK: Configured Operations Module [${name}]`);
         document.getElementById("modName").value = "";
         renderModules();
     }
 
     function removeModule(index) {
         const removed = installedModules.splice(index, 1);
-        logToTerminal(`Deinstalled Industrial Module: "${removed[0].name}"`);
+        logToTerminal(`INFRASTRUCTURE SEGMENT: Decommissioned Module [${removed[0].name}].`);
         renderModules();
     }
 
-    // Dynamic Resource Manifest registration
-    let customResourceCount = 0;
-    function registerNewResource() {
-        const name = document.getElementById("newResName").value.trim();
-        const weight = parseFloat(document.getElementById("newResWeight").value) || 0;
-        const initialQty = parseFloat(document.getElementById("newResQty").value) || 0;
-
-        if (!name) {
-            alert("Resource Name is required.");
-            return;
-        }
-
-        customResourceCount++;
-        const customId = `custom_res_${customResourceCount}`;
-
-        // Add to global stockpiles grid
-        const grid = document.getElementById("manifestGrid");
-        const div = document.createElement("div");
-        div.className = "res-item";
-        div.innerHTML = `
-            <label>${name}</label>
-            <input type="number" id="${customId}" class="res" data-weight="${weight}" value="${initialQty}" onchange="calculateLogistics()">
-        `;
-        grid.appendChild(div);
-
-        // Add dynamically to select options in production builder
-        const inpSel = document.getElementById("modInputRes");
-        const outSel = document.getElementById("modOutputRes");
-        const opt1 = new Option(name, customId);
-        const opt2 = new Option(name, customId);
-        inpSel.add(opt1);
-        outSel.add(opt2);
-
-        logToTerminal(`Registered Dynamic Strategic Resource: "${name}" (Unit weight: ${weight} lbs)`);
-        document.getElementById("newResName").value = "";
-        document.getElementById("newResWeight").value = "1";
-        document.getElementById("newResQty").value = "0";
-
-        calculateLogistics();
-    }
-
-    // Core OS Calculations
-    function calculateLogistics() {
-        const strength = parseFloat(document.getElementById("statStr").value) || 0;
-        const carryCapacity = strength * 15;
-
-        // Sum static vault items
-        let totalWeight = 0;
-        registryItems.forEach(item => totalWeight += item.weight);
-
-        // Sum active resources weights from dynamic registry elements
-        const resourceInputs = document.querySelectorAll(".res");
-        resourceInputs.forEach(input => {
-            const qty = parseFloat(input.value) || 0;
-            const wtPerUnit = parseFloat(input.getAttribute("data-weight")) || 0;
-            totalWeight += (qty * wtPerUnit);
-        });
-
-        const statusBox = document.getElementById("capacityStatus");
-        statusBox.innerText = `Vault Stockpile: ${totalWeight.toFixed(2)} / ${carryCapacity} lbs (Capacity: ${(carryCapacity - totalWeight).toFixed(2)} free)`;
-
-        if (totalWeight > carryCapacity) {
-            statusBox.style.borderColor = "var(--neon-pink)";
-            statusBox.style.color = "var(--neon-pink)";
-            statusBox.innerHTML += "<br>⚡ WARNING: OVERLOAD DETECTED";
-        } else {
-            statusBox.style.borderColor = "var(--neon-green)";
-            statusBox.style.color = "var(--neon-green)";
-        }
-    }
-
-    // Planar Credit Exchange Engine
-    function planarExchange() {
-        const goldEl = document.getElementById("bankGp");
-        const creditsEl = document.getElementById("bankAc");
-
-        let gold = parseFloat(goldEl.value) || 0;
-        let credits = parseFloat(creditsEl.value) || 0;
-
-        if (gold >= 1000) {
-            gold -= 1000;
-            credits += 100;
-            goldEl.value = gold.toFixed(2);
-            creditsEl.value = credits;
-            logToTerminal("Executed Transaction: Exchanged 1000 GP for +100 Planar Credits (AC)");
-            calculateLogistics();
-        } else {
-            logToTerminal("ERROR: Insufficient Liquid Gold (GP) to complete transaction.");
-        }
-    }
-
-    // Run Production Modules Cycle
     function runProductionCycle() {
-        logToTerminal("⚙️ Booting Run Production Cycle...");
-        let processedAny = false;
+        logToTerminal("⚙️ Booting Industrial Transformation Cycle...");
+        let operationalTrigger = false;
 
         installedModules.forEach(mod => {
             const inputEl = document.getElementById(mod.inputId);
             const outputEl = document.getElementById(mod.outputId);
 
-            if (!inputEl || !outputEl) {
-                logToTerminal(`System Fault: Element reference lost for Module: ${mod.name}`);
-                return;
-            }
+            if (!inputEl || !outputEl) return;
 
             let currentInputVal = parseFloat(inputEl.value) || 0;
             let currentOutputVal = parseFloat(outputEl.value) || 0;
@@ -1032,194 +1043,204 @@
                 inputEl.value = currentInputVal.toFixed(2);
                 outputEl.value = currentOutputVal.toFixed(2);
 
-                logToTerminal(`Module Action: [${mod.name}] successfully processed ${mod.inputQty} into ${mod.outputQty}`);
-                processedAny = true;
+                logToTerminal(`PROCESSED: [${mod.name}] matrix cycle completed step conversion.`);
+                operationalTrigger = true;
             } else {
-                logToTerminal(`Logistics Halt: [${mod.name}] lacking input resources.`);
+                logToTerminal(`STALLED SYSTEM: [${mod.name}] offline due to resource depletion profile.`);
             }
         });
 
-        if (processedAny) {
-            logToTerminal("⚙️ Industrial engine run successfully completed.");
+        if (operationalTrigger) {
             calculateLogistics();
-        } else {
-            logToTerminal("⚠️ Cycle ended. No operations executed due to missing materials.");
+        }
+    }                                                                            
+    // Intelligence Sub-System (Multi-Tab Array Logic)                               function renderLore() {
+        const container = document.getElementById('loreDisplayContainer');               container.innerHTML = "";                                                        const entries = loreDatabase[activeLoreTab];
+
+        if (!entries || entries.length === 0) {                                              container.innerHTML = `<div style="color: #554466; font-size: 0.8em; font-style: italic;">No tracks matched to current active vectors.</div>`;                    return;
+        }                                                                                                                                                                 entries.forEach((entry, idx) => {
+            container.innerHTML += `
+                <div class="lore-entry">                                                             <div style="display:flex; justify-content: space-between; align-items: center;">
+                        <span class="lore-title">> ${entry.title}</span>
+                        <button type="button" onclick="deleteLoreEntry(${idx})" style="background:#330000; color:#ff3333; border:1px solid #ff3333; border-radius:3px; padding:2px 6px; font-size:0.7em; cursor:pointer;">PURGE</button>
+                    </div>                                                                           <div style="color: #b0a0cc; margin-top: 4px; padding-left: 10px; line-height: 1.3em;">${entry.body}</div>                                                     </div>`;
+        });                                                                          }
+                                                                                     function switchLoreTab(tabKey, btnElement) {
+        activeLoreTab = tabKey;                                                          document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        btnElement.classList.add('active');
+        renderLore();
+    }                                                                            
+    function submitLoreEntry() {                                                         const title = document.getElementById('loreTitle').value.trim();
+        const cat = document.getElementById('loreCategory').value;
+        const body = document.getElementById('loreBody').value.trim();           
+        if (!title || !body) {                                                               alert("Title tag and data matrix inputs cannot be left blank.");
+            return;
+        }
+
+        loreDatabase[cat].push({ title, body });
+        logToTerminal(`ARCHIVE CHANNEL: Indexed matrix feed into [${cat.toUpperCase()}] segment.`);
+
+        document.getElementById('loreTitle').value = "";
+        document.getElementById('loreBody').value = "";
+
+        if (activeLoreTab === cat) {
+            renderLore();
         }
     }
 
-    // Save All Integrated OS State to JSON
-    function saveToJSON() {
-        const form = document.getElementById('citySheet');
+    function deleteLoreEntry(index) {
+        logToTerminal(`ARCHIVE PURGE: Scrubbed record entry block from memory matrix arrays.`);
+        loreDatabase[activeLoreTab].splice(index, 1);                                    renderLore();
+    }                                                                            
+    function exportLoreJSON() {
+        try {
+            const dataStr = JSON.stringify(loreDatabase, null, 2);
+            navigator.clipboard.writeText(dataStr).then(() => {
+                logToTerminal("EXPORT INTERFACE: Intelligence Database copied to terminal clipboard.");
+                alert("Database copy success! Structural matrix array copied to clipboard.");                                                                                 }).catch(() => {
+                logToTerminal("CLIPBOARD REJECTION: Printing database text structure to master browser console.");
+                console.log(dataStr);                                                        });
+        } catch (e) {
+            logToTerminal(`CRITICAL MATRIX FAULT: ${e.message}`);
+        }                                                                            }
+
+    function importLoreJSON() {
+        const inputData = prompt("Paste full structural JSON data array packet payload directly into matrix mapping buffer:");
+        if (!inputData) return;                                                  
+        try {                                                                                const parsed = JSON.parse(inputData);
+            const keys = ['factions', 'npcs', 'anomalies', 'rumors', 'chronicles'];
+            if (keys.every(key => Array.isArray(parsed[key]))) {
+                loreDatabase = parsed;
+                logToTerminal("INTELLIGENCE ARRAYS: Synchronized structural records successfully.");
+                renderLore();
+            } else {
+                logToTerminal("VALIDATION MISMATCH: Incompatible data structures detected.");
+            }                                                                            } catch (e) {
+            logToTerminal(`PARSING FAULT: Check formatting logic code loops. (${e.message})`);
+        }
+    }
+
+    // Core Logistics Formulation
+    function calculateLogistics() {
+        const city = document.getElementById('cityName').value;
+        const strength = parseFloat(document.getElementById("statStr").value) || 0;
+
+        // 7.0 Standard Capacity Rule baseline combined with 7.6 metrics
+        const carryCapacity = strength * 15;
+
+        let totalWeight = 0;
+        registryItems.forEach(item => totalWeight += item.weight);               
+        // Sum active values inside DOM grid element inputs
+        const resourceInputs = document.querySelectorAll(".res");
+        resourceInputs.forEach(input => {
+            const qty = parseFloat(input.value) || 0;
+            const wtPerUnit = parseFloat(input.getAttribute("data-weight")) || 0;
+            totalWeight += (qty * wtPerUnit);
+        });
+
+        // 7.6 Gold Spec Weight Division Inclusion Rule
+        const goldVal = parseFloat(document.getElementById("bankGp").value) || 0;
+        totalWeight += (goldVal / 50);
+
+        const statusBox = document.getElementById("capacityStatus");                     const isOverburdened = totalWeight > carryCapacity;
+
+        statusBox.innerHTML =
+            `<span style="color: ${isOverburdened ? 'var(--neon-pink)' : 'var(--neon-green)'}">` +
+            `${city.toUpperCase()} MATRICES LOADOUT: ${totalWeight.toFixed(2)} / ${carryCapacity} lbs</span>` +
+            `<br><span style="font-size: 0.75em; color: #aaa;">LOGISTICS RUN STATE: ${isOverburdened ? 'OVERBURDENED (Logistics Stalled)' : 'PEAK EFFICIENCY'}</span>`;
+
+        if (isOverburdened) {
+            statusBox.style.borderColor = "var(--neon-pink)";
+            statusBox.style.color = "var(--neon-pink)";                                  } else {
+            statusBox.style.borderColor = "var(--neon-green)";
+            statusBox.style.color = "var(--neon-green)";
+        }
+
+        // Sync values inside global array records to enable lossless backup saves
+        defaultResourcesList.forEach(res => {
+            const el = document.getElementById(res.id);
+            if (el) res.val = parseFloat(el.value) || 0;
+        });
+    }
+                                                                                     function planarExchange() {
+        const goldEl = document.getElementById("bankGp");                                const creditsEl = document.getElementById("bankAc");
+
+        let gold = parseFloat(goldEl.value) || 0;                                        let credits = parseFloat(creditsEl.value) || 0;
+
+        if (gold >= 1000) {                                                                  gold -= 1000;
+            credits += 100;
+            goldEl.value = gold.toFixed(2);
+            creditsEl.value = credits;
+            logToTerminal("TRANSACTION RESOLVED: Shifted 1000 Liquid Gold for +100 Planar Credits (AC).");
+            calculateLogistics();
+        } else {
+            logToTerminal("LEDGER ERROR: Insufficient gold balance threshold profiles.");
+        }                                                                            }                                                                            
+    // Unified System Data Porting (JSON Master Sync File Save/Load)
+    function saveSystemSheet() {
+        const form = document.getElementById('matrixForm');
         const data = {
-            metadata: {
-                version: "7.0",
-                timestamp: new Date().toISOString()
-            },
-            formFields: {},
-            dynamicElements: {
-                registryItems: registryItems,
-                installedModules: installedModules,
-                customResources: []
-            }
-        };
+            version: "7.7-Combined",                                                         timestamp: new Date().toISOString(),
+            formFields: {},                                                                  registryItems: registryItems,
+            installedModules: installedModules,                                              loreDatabase: loreDatabase,
+            customResourcesManifest: defaultResourcesList                                };
+                                                                                         // Track static and structural standard grid parameters fields
+        const selectors = form.querySelectorAll('input, textarea, select');
+        selectors.forEach(input => {
+            if (!input.id || input.classList.contains('res')) return;
 
-        // Capture static and standard inputs/textareas
-        const inputs = form.querySelectorAll('input, textarea, select');
-        inputs.forEach(input => {
-            if (!input.id) return;
-            
-            // Skip dynamic item system/production builder fields
-            if (["newItemName", "newItemLabel", "newItemWeight", "modName", "modInputRes", "modInputQty", "modOutputRes", "modOutputQty", "newResName", "newResWeight", "newResQty"].includes(input.id)) {
-                return;
-            }
-
-            // Exclude dynamic inputs in lists/grids dynamically marked
-            if (input.classList.contains('res') && input.id.startsWith('custom_res_')) {
-                return;
+            // Exclude operational buffer builders inputs elements
+            if (["newItemName", "newItemLabel", "newItemWeight", "modName", "modInputRes", "modInputQty", "modOutputRes", "modOutputQty", "newResName", "newResWeight", "newResQty", "loreTitle", "loreCategory", "loreBody"].includes(input.id)) {                return;
             }
 
             if (input.type === 'checkbox') {
                 data.formFields[input.id] = input.checked;
             } else if (input.type === 'number') {
                 data.formFields[input.id] = input.value !== "" ? Number(input.value) : null;
-            } else {
-                data.formFields[input.id] = input.value;
+            } else {                                                                             data.formFields[input.id] = input.value;
             }
-        });
-
-        // Capture Dynamic Custom Resources
-        const dynamicResInputs = document.querySelectorAll(".res");
-        dynamicResInputs.forEach(input => {
-            if (input.id.startsWith('custom_res_')) {
-                const parent = input.parentElement;
-                const label = parent.querySelector('label').innerText;
-                data.dynamicElements.customResources.push({
-                    id: input.id,
-                    name: label,
-                    weight: parseFloat(input.getAttribute('data-weight')) || 0,
-                    qty: parseFloat(input.value) || 0
-                });
-            }
-        });
-
-        const jsonString = JSON.stringify(data, null, 4);
+        });                                                                      
+        const jsonString = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 4));
         const cityName = document.getElementById('cityName').value.trim() || 'sovereign_hub';
-        const filename = `${cityName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_os_v7.json`;
-
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        logToTerminal("System backup successfully saved to local directory.");
-    }
-
-    // Load Integrated State from JSON
-    function loadFromJSON(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                const form = document.getElementById('citySheet');
-                
-                // Reset core form elements
-                form.reset();
-
-                // Hydrate Standard Inputs
-                if (data.formFields) {
-                    for (const key in data.formFields) {
-                        const input = document.getElementById(key);
-                        if (input) {
-                            if (input.type === 'checkbox') {
-                                input.checked = !!data.formFields[key];
-                            } else {
-                                input.value = data.formFields[key] !== null ? data.formFields[key] : '';
-                            }
-                        }
-                    }
-                }
-
-                // Clean & Hydrate Dynamic Elements
-                if (data.dynamicElements) {
-                    // Item Vault
-                    if (Array.isArray(data.dynamicElements.registryItems)) {
-                        registryItems = data.dynamicElements.registryItems;
-                    }
-                    // Production Modules
-                    if (Array.isArray(data.dynamicElements.installedModules)) {
-                        installedModules = data.dynamicElements.installedModules;
-                    }
-
-                    // Hydrate Dynamic Custom Resources
-                    const grid = document.getElementById("manifestGrid");
-                    // Clean previously made custom ones
-                    const elementsToRemove = grid.querySelectorAll("div.res-item");
-                    elementsToRemove.forEach(el => {
-                        const inp = el.querySelector('input');
-                        if (inp && inp.id.startsWith('custom_res_')) {
-                            el.remove();
-                        }
-                    });
-
-                    // Remove dynamic options from selector lists
-                    const inpSel = document.getElementById("modInputRes");
-                    const outSel = document.getElementById("modOutputRes");
-                    Array.from(inpSel.options).forEach(opt => {
-                        if (opt.value.startsWith('custom_res_')) opt.remove();
-                    });
-                    Array.from(outSel.options).forEach(opt => {
-                        if (opt.value.startsWith('custom_res_')) opt.remove();
-                    });
-
-                    // Load custom resources
-                    if (Array.isArray(data.dynamicElements.customResources)) {
-                        data.dynamicElements.customResources.forEach(res => {
-                            const div = document.createElement("div");
-                            div.className = "res-item";
-                            div.innerHTML = `
-                                <label>${res.name}</label>
-                                <input type="number" id="${res.id}" class="res" data-weight="${res.weight}" value="${res.qty}" onchange="calculateLogistics()">
-                            `;
-                            grid.appendChild(div);
-
-                            // Append options
-                            inpSel.add(new Option(res.name, res.id));
-                            outSel.add(new Option(res.name, res.id));
-                        });
-                        // Set counter variable to prevent ID collision
-                        customResourceCount = data.dynamicElements.customResources.length;
-                    }
-                }
-
-                // Sync view
+        const filename = `${cityName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_matrix_core_v7.7.json`;                                                                                                                                                    const anchorNode = document.createElement('a');
+        anchorNode.setAttribute("href", jsonString);
+        anchorNode.setAttribute("download", filename);
+        document.body.appendChild(anchorNode);
+        anchorNode.click();
+        anchorNode.remove();                                                             logToTerminal("BACKUP MASTER COMPLETED: Full system matrix architecture array written out.");                                                                 }
+                                                                                     function loadSystemSheet(event) {
+        const file = event.target.files[0];                                              if (!file) return;
+                                                                                         const reader = new FileReader();
+        reader.onload = function(e) {                                                        try {
+                const matrixPacket = JSON.parse(e.target.result);                
+                if (matrixPacket.formFields) {                                                       for (const key in matrixPacket.formFields) {                                         const inputField = document.getElementById(key);
+                        if (inputField) {                                                                    if (inputField.type === 'checkbox') {                                                inputField.checked = !!matrixPacket.formFields[key];                                                                                                          } else {
+                                inputField.value = matrixPacket.formFields[key] !== null ? matrixPacket.formFields[key] : '';
+                            }                                                                            }
+                    }                                                                            }
+                                                                                                 if (Array.isArray(matrixPacket.registryItems)) registryItems = matrixPacket.registryItems;                                                                        if (Array.isArray(matrixPacket.installedModules)) installedModules = matrixPacket.installedModules;                                                               if (matrixPacket.loreDatabase) loreDatabase = matrixPacket.loreDatabase;                                                                                          if (Array.isArray(matrixPacket.customResourcesManifest)) defaultResourcesList = matrixPacket.customResourcesManifest;                             
+                // Restructuring global view layouts elements layers
+                initResourceManifest();
                 updateCityName();
                 renderItems();
                 renderModules();
-                calculateLogistics();
+                renderLore();                                                                    calculateLogistics();
 
-                logToTerminal('✨ Sovereignty State restored from JSON archive successfully.');
+                logToTerminal('✨ RESTORE STATE SUCCESSFUL: Full network matrix core synchronized to backup packet snapshot.');
             } catch (err) {
-                alert('Initialization error: ' + err.message);
+                logToTerminal(`RESTORE FAULT ERROR: Core parameters matrix map failure. (${err.message})`);
             }
         };
         reader.readAsText(file);
+        event.target.value = ''; // Reset core value block target lines
     }
 
-    // Initial OS Setup
-    window.onload = function() {
+    // Engine Startup Sequence                                                       window.onload = function() {
+        initResourceManifest();
         updateCityName();
         renderItems();
         renderModules();
-        calculateLogistics();
-    }
-</script>
-
-</body>
+        renderLore();
+        calculateLogistics();                                                        }                                                                            </script>
+                                                                                 </body>
 </html>
