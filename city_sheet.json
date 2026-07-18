@@ -1,48 +1,212 @@
 {
-    "cityName": "",
-    "rulerLeader": "",
-    "region": "",
-    "settlementType": "",
-    "demographics": "",
-    "alignment": "",
-    "population": "",
-    "attr_defense": null,
-    "attr_wealth": null,
-    "attr_magic": null,
-    "attr_industry": null,
-    "attr_order": null,
-    "attr_lore": null,
-    "tax_rate": "",
-    "safety_level": "",
-    "infra_sewers": false,
-    "infra_aqueduct": false,
-    "infra_walls": false,
-    "infra_teleport": false,
-    "infra_port": false,
-    "infra_underground": false,
-    "infra_paved": false,
-    "serv_temples": true,
-    "serv_colleges": false,
-    "serv_banks": true,
-    "serv_healers": true,
-    "serv_airship": true,
-    "serv_bazaars": false,
-    "price_limit": "",
-    "crime_mod": "",
-    "guard_staff": "",
-    "district_name1": "",
-    "district_desc1": "",
-    "district_name2": "",
-    "district_desc2": "",
-    "district_name3": "",
-    "district_desc3": "",
-    "district_notes": "fdaf                fsdaf df",
-    "exports": "",
-    "imports": "",
-    "law_rules": "",
-    "factions": "",
-    "notable_npcs": "",
-    "quirks": "",
-    "rumors": "",
-    "history": ""
+    "version": "7.7-Combined",
+    "timestamp": "2026-07-18T03:17:34.307Z",
+    "formFields": {
+        "cityName": "Briar (Sovereign’s Reach)",
+        "rulerLeader": "Verneg (The Catalyst) & Morgruth (Ascended God)",
+        "region": "Bridfield Hinterlands (Material Plane)",
+        "settlementType": "Level 2 Fortified Settlement / Camouflaged Woodland Town",
+        "demographics": "Wood Elves, Elite Tactical Guardians, Devoted Brier Laborers",
+        "alignment": "Neutral Good / Lawful Neutral faction lean",
+        "population": "1,000 Circadian Wardens + Full contingent of loyal Brier Farmers + 2 Livestock Units",
+        "statStr": 20,
+        "bankGp": 7015,
+        "bankAc": 0,
+        "attr_defense": 16,
+        "attr_wealth": 8,
+        "attr_magic": 14,
+        "attr_industry": 18,
+        "attr_order": 12,
+        "attr_lore": 15,
+        "tax_rate": "0% (Sustained by internal resources & hidden trade integration)",
+        "safety_level": "High (Zero Imperial Detection Rating)",
+        "infra_sewers": true,
+        "infra_aqueduct": true,
+        "infra_walls": true,
+        "infra_teleport": false,
+        "infra_port": true,
+        "infra_underground": true,
+        "infra_paved": false,
+        "price_limit": "Uncapped (Black Market Trade Infrastructure)",
+        "crime_mod": "Low / Heavily Policed by Wardens",
+        "guard_staff": "1,000 Circadian Wardens outfitted in Shadow-Iron heavy plate, broadswords, and recurve crossbows",
+        "district_name1": "Sunken Quarry Fissure",
+        "district_desc1": "Subterranean cavern system housing core mining operations, clandestine heavy armor smithing, and contained underground forge networks.",
+        "district_name2": "Whispering Grotto & Ridge",
+        "district_desc2": "Sea-cave and private dock facility utilizing a natural 'Null Zone' to obscure the Sovereign Wake. Timberlands tilled with iron-hard oaks and pines stretch along the ridge.",
+        "district_name3": "The Valley Farmlands",
+        "district_desc3": "Camouflaged turf-roof homesteads and stables situated alongside clear valley streams cultivating winter vegetables and fruit orchards.",
+        "district_notes": "All sectors are heavily shrouded under the active Sanctuary Protocol fields and structural foliage overrides to ensure a perfect zero detection baseline.",
+        "exports": "Refined Shadow-Iron, Timber, Surplus Metalwares, and Grains",
+        "imports": ""
+    },
+    "registryItems": [],
+    "installedModules": [],
+    "loreDatabase": {
+        "factions": [
+            {
+                "id": "facCircadianWardens",
+                "name": "Circadian Wardens",
+                "description": "Elite tactical guardians protecting Briar. Heavily armored in Shadow-Iron and highly disciplined, maintaining a flawless camouflage stance.",
+                "standing": "Loyal"
+            },
+            {
+                "id": "facImperialFleet",
+                "name": "The Imperial Fleet",
+                "description": "The primary external threat seeking to penetrate the region's cloaking defense networks.",
+                "standing": "Hostile"
+            }
+        ],
+        "npcs": [
+            {
+                "id": "npcVerneg",
+                "name": "Verneg (The Catalyst)",
+                "role": "Co-Ruler & Operational Architect",
+                "notes": "Managing structural expansions, black market logistics, and systemic resource distribution across the settlement sectors."
+            },
+            {
+                "id": "npcMorgruth",
+                "name": "Morgruth",
+                "role": "Ascended God & Divine Protector",
+                "notes": "Co-ruler providing cosmic anchoring and passive mystical reinforcement to the domain's cloaking protocols."
+            }
+        ],
+        "anomalies": [
+            {
+                "id": "anomNullZone",
+                "name": "The Whispering Grotto Null Zone",
+                "type": "Arcane Dead Zone",
+                "description": "A natural magic-dampening pocket utilizing a specialized frequency to obscure the signature of the Sovereign Wake."
+            },
+            {
+                "id": "anomSanctuaryFields",
+                "name": "Sanctuary Protocol Cloaking Field",
+                "type": "Environmental Shift",
+                "description": "Active global structural override combining magical foliage redirection and active energy dampening to yield a zero imperial detection baseline."
+            }
+        ],
+        "rumors": [
+            {
+                "id": "rumFleetProximity",
+                "source": "Scout Feeds",
+                "detail": "Whispers of the Imperial Fleet modifying their scrying matrixes to actively scan for anomalous structural anomalies along the Bridfield Hinterlands perimeter."
+            }
+        ],
+        "chronicles": [
+            {
+                "timestamp": "2026-07-18T03:17:34.307Z",
+                "entry": "Establishment of Sovereign OS v7.7. Successfully consolidated core industrial manifests, secured regional black market trade paths, and initiated the zero-detection camouflage protocols across all three primary districts."
+            }
+        ]
+    },
+    "customResourcesManifest": [
+        {
+            "id": "resIron",
+            "name": "Shadow-Iron",
+            "weight": 10,
+            "val": 487.2
+        },
+        {
+            "id": "resWood",
+            "name": "Shadow-Oak",
+            "weight": 2,
+            "val": 2914.8
+        },
+        {
+            "id": "resObsidian",
+            "name": "Obsidian",
+            "weight": 5,
+            "val": 0
+        },
+        {
+            "id": "resGrain",
+            "name": "Aether-Grain",
+            "weight": 1,
+            "val": 0
+        },
+        {
+            "id": "resProduce",
+            "name": "Produce",
+            "weight": 1,
+            "val": 0
+        },
+        {
+            "id": "resLivestock",
+            "name": "Livestock",
+            "weight": 0,
+            "val": 2
+        },
+        {
+            "id": "resArsenal",
+            "name": "Arsenal",
+            "weight": 6,
+            "val": 0
+        },
+        {
+            "id": "resCrystals",
+            "name": "Aether Crystals",
+            "weight": 1,
+            "val": 0
+        },
+        {
+            "id": "resEssence",
+            "name": "Static Essence",
+            "weight": 0,
+            "val": 0
+        },
+        {
+            "id": "resWardens",
+            "name": "Wardens (Units)",
+            "weight": 0,
+            "val": 0
+        },
+        {
+            "id": "resWatch",
+            "name": "City Watch (Units)",
+            "weight": 0,
+            "val": 0
+        },
+        {
+            "id": "resSignet",
+            "name": "Signet Ring",
+            "weight": 0,
+            "val": 0
+        },
+        {
+            "id": "resSilver",
+            "name": "Silver Veins",
+            "weight": 10,
+            "val": 0
+        },
+        {
+            "id": "resSalt",
+            "name": "High-Grade Salt",
+            "weight": 2,
+            "val": 0
+        },
+        {
+            "id": "resHawks",
+            "name": "Aether-Hawks",
+            "weight": 0,
+            "val": 0
+        },
+        {
+            "id": "resAntelope",
+            "name": "Glass-Antelope",
+            "weight": 0,
+            "val": 0
+        },
+        {
+            "id": "resOaks",
+            "name": "Sentinel Oaks",
+            "weight": 0,
+            "val": 0
+        },
+        {
+            "id": "resLeviathans",
+            "name": "Leviathans",
+            "weight": 0,
+            "val": 0
+        }
+    ]
 }
