@@ -1,0 +1,1 @@
+Welcome to the Persistent Storage Partition. Files created here survive session restarts.
